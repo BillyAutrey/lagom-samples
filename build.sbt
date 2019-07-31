@@ -8,7 +8,7 @@ val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 
 lazy val `menu-item` = (project in file("."))
-  .aggregate(`menu-item-api`, `menu-item-impl`, `menu-item-stream-api`, `menu-item-stream-impl`)
+  .aggregate(`menu-item-api`, `menu-item-impl`, `order-api`, `order-impl`, `order-stream-api`, `order-stream-impl`)
 
 lazy val `menu-item-api` = (project in file("menu-item-api"))
   .settings(
@@ -31,14 +31,35 @@ lazy val `menu-item-impl` = (project in file("menu-item-impl"))
   .settings(lagomForkedTestSettings)
   .dependsOn(`menu-item-api`)
 
-lazy val `menu-item-stream-api` = (project in file("menu-item-stream-api"))
+lazy val `order-api` = (project in file("order-api"))
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslApi
     )
   )
 
-lazy val `menu-item-stream-impl` = (project in file("menu-item-stream-impl"))
+lazy val `order-impl` = (project in file("order-impl"))
+  .enablePlugins(LagomScala)
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslPersistenceCassandra,
+      lagomScaladslKafkaBroker,
+      lagomScaladslTestKit,
+      macwire,
+      scalaTest
+    )
+  )
+  .settings(lagomForkedTestSettings)
+  .dependsOn(`order-api`)
+
+lazy val `order-stream-api` = (project in file("order-stream-api"))
+  .settings(
+    libraryDependencies ++= Seq(
+      lagomScaladslApi
+    )
+  )
+
+lazy val `order-stream-impl` = (project in file("order-stream-impl"))
   .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
@@ -47,4 +68,4 @@ lazy val `menu-item-stream-impl` = (project in file("menu-item-stream-impl"))
       scalaTest
     )
   )
-  .dependsOn(`menu-item-stream-api`, `menu-item-api`)
+  .dependsOn(`order-stream-api`, `order-api`)
