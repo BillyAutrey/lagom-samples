@@ -1,10 +1,9 @@
-package com.example.order.impl
+package com.example.menuitem.impl
 
+import com.example.menuitem.api._
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
-import com.example.menuitem.api._
-import com.example.menuitem.impl.MenuItemApplication
 
 class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
