@@ -3,8 +3,7 @@ package com.example.menuitem.impl
 import java.time.LocalDateTime
 
 import akka.Done
-import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag, PersistentEntity}
-import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 import play.api.libs.json.{Format, Json}
 
@@ -94,82 +93,6 @@ object MenuItemState {
     * serialized and deserialized when storing to and from the database.
     */
   implicit val format: Format[MenuItemState] = Json.format
-}
-
-/**
-  * This interface defines all the events that the MenuItemEntity supports.
-  */
-sealed trait MenuItemEvent extends AggregateEvent[MenuItemEvent] {
-  def aggregateTag: AggregateEventTag[MenuItemEvent] = MenuItemEvent.Tag
-}
-
-object MenuItemEvent {
-  val Tag: AggregateEventTag[MenuItemEvent] = AggregateEventTag[MenuItemEvent]
-}
-
-/**
-  * An event that represents a change in greeting message.
-  */
-case class GreetingMessageChanged(message: String) extends MenuItemEvent
-
-object GreetingMessageChanged {
-
-  /**
-    * Format for the greeting message changed event.
-    *
-    * Events get stored and loaded from the database, hence a JSON format
-    * needs to be declared so that they can be serialized and deserialized.
-    */
-  implicit val format: Format[GreetingMessageChanged] = Json.format
-}
-
-/**
-  * This interface defines all the commands that the MenuItemEntity supports.
-  */
-sealed trait MenuItemCommand[R] extends ReplyType[R]
-
-/**
-  * A command to switch the greeting message.
-  *
-  * It has a reply type of [[Done]], which is sent back to the caller
-  * when all the events emitted by this command are successfully persisted.
-  */
-case class UseGreetingMessage(message: String) extends MenuItemCommand[Done]
-
-object UseGreetingMessage {
-
-  /**
-    * Format for the use greeting message command.
-    *
-    * Persistent entities get sharded across the cluster. This means commands
-    * may be sent over the network to the node where the entity lives if the
-    * entity is not on the same node that the command was issued from. To do
-    * that, a JSON format needs to be declared so the command can be serialized
-    * and deserialized.
-    */
-  implicit val format: Format[UseGreetingMessage] = Json.format
-}
-
-/**
-  * A command to say hello to someone using the current greeting message.
-  *
-  * The reply type is String, and will contain the message to say to that
-  * person.
-  */
-case class Hello(name: String) extends MenuItemCommand[String]
-
-object Hello {
-
-  /**
-    * Format for the hello command.
-    *
-    * Persistent entities get sharded across the cluster. This means commands
-    * may be sent over the network to the node where the entity lives if the
-    * entity is not on the same node that the command was issued from. To do
-    * that, a JSON format needs to be declared so the command can be serialized
-    * and deserialized.
-    */
-  implicit val format: Format[Hello] = Json.format
 }
 
 /**
