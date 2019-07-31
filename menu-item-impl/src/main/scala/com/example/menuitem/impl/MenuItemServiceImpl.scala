@@ -1,4 +1,4 @@
-package com.example.order.impl
+package com.example.menuitem.impl
 
 import com.example.menuitem.api
 import com.example.menuitem.api.MenuItemService

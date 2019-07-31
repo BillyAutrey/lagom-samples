@@ -1,4 +1,4 @@
-package com.example.order.impl
+package com.example.menuitem.impl
 
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag}
 import play.api.libs.json.{Format, Json}

@@ -8,7 +8,7 @@ import com.lightbend.lagom.scaladsl.persistence.cassandra.CassandraPersistenceCo
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.server._
 import com.softwaremill.macwire._
-import main.scala.com.example.order.api.OrderService
+import com.example.order.api.OrderService
 import play.api.libs.ws.ahc.AhcWSComponents
 
 class OrderLoader extends LagomApplicationLoader {

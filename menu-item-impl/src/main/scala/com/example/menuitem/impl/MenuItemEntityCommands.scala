@@ -1,4 +1,4 @@
-package com.example.order.impl
+package com.example.menuitem.impl
 
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType

@@ -2,6 +2,8 @@ package com.example.order.impl
 
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
+import com.example.menuitem.impl.{GreetingMessageChanged, Hello, MenuItemCommand, MenuItemEntity, MenuItemEvent, MenuItemSerializerRegistry, MenuItemState, UseGreetingMessage}
+import com.example.menuitem.{GreetingMessageChanged, Hello, MenuItemCommand, MenuItemEvent, MenuItemSerializerRegistry, MenuItemState, UseGreetingMessage}
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}

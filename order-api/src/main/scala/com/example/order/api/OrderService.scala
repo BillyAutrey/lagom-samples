@@ -35,6 +35,7 @@ trait OrderService extends Service {
   def greetingsTopic(): Topic[GreetingMessageChanged]
 
   override final def descriptor: Descriptor = {
+    import Service._
     // @formatter:off
     named("order")
       .withCalls(
