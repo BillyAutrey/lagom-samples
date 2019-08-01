@@ -3,7 +3,6 @@ package com.example.restaurantclient
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
 import com.example.menuitem.api.MenuItemService
 import com.example.restaurantclient.routes.MenuItemRoutes
 

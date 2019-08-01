@@ -1,7 +1,5 @@
 package com.example.restaurantclient
 
-import java.net.URI
-
 import akka.actor.ActorSystem
 import akka.stream.Materializer
 import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
