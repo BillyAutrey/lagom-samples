@@ -76,6 +76,7 @@ lazy val `order-stream-impl` = (project in file("order-stream-impl"))
   .dependsOn(`order-stream-api`, `order-api`)
 
 lazy val `restaurant-client` = (project in file("restaurant-client"))
+  .enablePlugins(LagomScala)
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslClient withSources(),
