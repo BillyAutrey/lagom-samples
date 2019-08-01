@@ -7,7 +7,7 @@ scalaVersion in ThisBuild := "2.12.8"
 val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
 val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
 
-lazy val `restaurant` = (project in file("."))
+lazy val `lagom-client-restaurant` = (project in file("."))
   .aggregate(`menu-item-api`, `menu-item-impl`, `order-api`, `order-impl`, `order-stream-api`, `order-stream-impl`)
 
 lazy val `menu-item-api` = (project in file("menu-item-api"))

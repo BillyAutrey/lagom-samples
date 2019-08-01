@@ -2,7 +2,7 @@ package com.example.menuitem.impl
 
 import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.{Format, JsSuccess, Json, Reads, Writes}
 
 /**
   * This interface defines all the commands that the MenuItemEntity supports.
@@ -10,14 +10,14 @@ import play.api.libs.json.{Format, Json}
 sealed trait MenuItemCommand[R] extends ReplyType[R]
 
 /**
-  * A command to switch the greeting message.
+  * A command to create a menu item
   *
   * It has a reply type of [[Done]], which is sent back to the caller
   * when all the events emitted by this command are successfully persisted.
   */
-case class UseGreetingMessage(message: String) extends MenuItemCommand[Done]
+case class CreateMenuItem(name: String, description: String, price: String) extends MenuItemCommand[Done]
 
-object UseGreetingMessage {
+object CreateMenuItem {
 
   /**
     * Format for the use greeting message command.
@@ -28,27 +28,12 @@ object UseGreetingMessage {
     * that, a JSON format needs to be declared so the command can be serialized
     * and deserialized.
     */
-  implicit val format: Format[UseGreetingMessage] = Json.format
+  implicit val format: Format[CreateMenuItem] = Json.format
 }
 
-/**
-  * A command to say hello to someone using the current greeting message.
-  *
-  * The reply type is String, and will contain the message to say to that
-  * person.
-  */
-case class Hello(name: String) extends MenuItemCommand[String]
-
-object Hello {
-
-  /**
-    * Format for the hello command.
-    *
-    * Persistent entities get sharded across the cluster. This means commands
-    * may be sent over the network to the node where the entity lives if the
-    * entity is not on the same node that the command was issued from. To do
-    * that, a JSON format needs to be declared so the command can be serialized
-    * and deserialized.
-    */
-  implicit val format: Format[Hello] = Json.format
+case object Get extends MenuItemCommand[MenuItemState] {
+  implicit val format: Format[Get.type] = Format(
+    Reads( _ => JsSuccess(Get)),
+    Writes( _ => Json.obj() )
+  )
 }

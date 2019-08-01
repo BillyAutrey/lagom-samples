@@ -5,10 +5,6 @@ import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Descriptor, Service, ServiceCall}
 
-object MenuItemService  {
-  val TOPIC_NAME = "greetings"
-}
-
 /**
   * The Menu Item service interface.
   * <p>
@@ -18,41 +14,30 @@ object MenuItemService  {
 trait MenuItemService extends Service {
 
   /**
-    * Example: curl http://localhost:9000/api/hello/Alice
+    * Example: curl http://localhost:9000/api/menuItem/1
     */
-  def hello(id: String): ServiceCall[NotUsed, String]
+  def menuItem(id: String): ServiceCall[NotUsed, MenuItem]
 
   /**
-    * Example: curl -H "Content-Type: application/json" -X POST -d '{"message":
-    * "Hi"}' http://localhost:9000/api/hello/Alice
+    * Example: curl http://localhost:9000/api/menuItemShort/1
     */
-  def useGreeting(id: String): ServiceCall[GreetingMessage, Done]
-
+  def menuItemShort(id: String): ServiceCall[NotUsed, MenuItemShort]
 
   /**
-    * This gets published to Kafka.
-    */
-  def greetingsTopic(): Topic[GreetingMessageChanged]
+   * Creates a menu item
+   * Example: curl -H "Content-Type: application/json" -X POST -d '{"id": "1", "name":
+   * "Bacon", "description":"Yummy bacon", "price":"0.50"}' http://localhost:9000/api/hello/Alice
+   */
+  def createMenuItem(): ServiceCall[MenuItem, String]
 
   override final def descriptor: Descriptor = {
     import Service._
     // @formatter:off
     named("menu-item")
       .withCalls(
-        pathCall("/api/hello/:id", hello _),
-        pathCall("/api/hello/:id", useGreeting _)
-      )
-      .withTopics(
-        topic(MenuItemService.TOPIC_NAME, greetingsTopic _)
-          // Kafka partitions messages, messages within the same partition will
-          // be delivered in order, to ensure that all messages for the same user
-          // go to the same partition (and hence are delivered in order with respect
-          // to that user), we configure a partition key strategy that extracts the
-          // name as the partition key.
-          .addProperty(
-            KafkaProperties.partitionKeyStrategy,
-            PartitionKeyStrategy[GreetingMessageChanged](_.name)
-          )
+        pathCall("/api/menuItem/:id", menuItem _),
+        pathCall("/api/menuItemShort/:id", menuItemShort _),
+        pathCall("/api/createMenuItem", createMenuItem() )
       )
       .withAutoAcl(true)
     // @formatter:on

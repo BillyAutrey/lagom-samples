@@ -20,18 +20,29 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
 
   "Menu Item service" should {
 
-    "say hello" in {
-      client.hello("Alice").invoke().map { answer =>
-        answer should ===("Hello, Alice!")
+    "Create a menu item" in {
+      for {
+        id <- client.createMenuItem().invoke(MenuItem("name", "desc", "1.00"))
+      } yield {
+        id shouldBe a [String]
       }
     }
 
-    "allow responding with a custom message" in {
+    "Get a menu item" in {
       for {
-        _ <- client.useGreeting("Bob").invoke(GreetingMessage("Hi"))
-        answer <- client.hello("Bob").invoke()
+        id <- client.createMenuItem().invoke(MenuItem("name","desc","1.00"))
+        answer <- client.menuItem(id).invoke()
       } yield {
-        answer should ===("Hi, Bob!")
+        answer should ===(MenuItem("name","desc","1.00"))
+      }
+    }
+
+    "Get an abbreviated menu item" in {
+      for {
+        id <- client.createMenuItem().invoke(MenuItem("name","desc","1.00"))
+        answer <- client.menuItemShort(id).invoke()
+      } yield {
+        answer should ===(MenuItemShort("name","1.00"))
       }
     }
   }

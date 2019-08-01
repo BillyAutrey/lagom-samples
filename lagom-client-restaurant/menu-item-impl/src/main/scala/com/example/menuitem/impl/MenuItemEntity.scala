@@ -11,22 +11,7 @@ import scala.collection.immutable.Seq
 
 /**
   * This is an event sourced entity. It has a state, [[MenuItemState]], which
-  * stores what the greeting should be (eg, "Hello").
-  *
-  * Event sourced entities are interacted with by sending them commands. This
-  * entity supports two commands, a [[UseGreetingMessage]] command, which is
-  * used to change the greeting, and a [[Hello]] command, which is a read
-  * only command which returns a greeting to the name specified by the command.
-  *
-  * Commands get translated to events, and it's the events that get persisted by
-  * the entity. Each event will have an event handler registered for it, and an
-  * event handler simply applies an event to the current state. This will be done
-  * when the event is first created, and it will also be done when the entity is
-  * loaded from the database - each event will be replayed to recreate the state
-  * of the entity.
-  *
-  * This entity defines one event, the [[GreetingMessageChanged]] event,
-  * which is emitted when a [[UseGreetingMessage]] command is received.
+  * stores menu item data.
   */
 class MenuItemEntity extends PersistentEntity {
 
@@ -37,54 +22,57 @@ class MenuItemEntity extends PersistentEntity {
   /**
     * The initial state. This is used if there is no snapshotted state to be found.
     */
-  override def initialState: MenuItemState = MenuItemState("Hello", LocalDateTime.now.toString)
+  override def initialState: MenuItemState = MenuItemState.empty
 
   /**
     * An entity can define different behaviours for different states, so the behaviour
     * is a function of the current state to a set of actions.
     */
   override def behavior: Behavior = {
-    case MenuItemState(message, _) => Actions().onCommand[UseGreetingMessage, Done] {
-
-      // Command handler for the UseGreetingMessage command
-      case (UseGreetingMessage(newMessage), ctx, state) =>
-        // In response to this command, we want to first persist it as a
-        // GreetingMessageChanged event
-        ctx.thenPersist(
-          GreetingMessageChanged(newMessage)
-        ) { _ =>
-          // Then once the event is successfully persisted, we respond with done.
-          ctx.reply(Done)
-        }
-
-    }.onReadOnlyCommand[Hello, String] {
-
-      // Command handler for the Hello command
-      case (Hello(name), ctx, state) =>
-        // Reply with a message built from the current message, and the name of
-        // the person we're meant to say hello to.
-        ctx.reply(s"$message, $name!")
-
-    }.onEvent {
-
-      // Event handler for the GreetingMessageChanged event
-      case (GreetingMessageChanged(newMessage), state) =>
-        // We simply update the current state to use the greeting message from
-        // the event.
-        MenuItemState(newMessage, LocalDateTime.now().toString)
-
-    }
+    case MenuItemState.empty => uninitialized
+    case _ => initialized
   }
+
+  private def uninitialized =
+    Actions()
+      .onCommand[CreateMenuItem,Done]{
+        case (CreateMenuItem(name, desc, price), ctx, state) =>
+          ctx.thenPersist(
+            MenuItemCreated(name,desc,price)
+          ) { _ =>
+            ctx.reply(Done)
+          }
+      }
+      .onReadOnlyCommand[Get.type,MenuItemState]{
+        case (Get, ctx, state) =>
+          ctx.invalidCommand(s"Menu item $entityId has not been initialized.")
+      }
+      .onEvent {
+        case (MenuItemCreated(name,desc,price), state) =>
+          state.copy(name = name, description = desc, price = price)
+      }
+
+  private def initialized =
+    Actions()
+      .onCommand[CreateMenuItem,Done]{
+        case (_,ctx,state) =>
+          ctx.commandFailed(MenuItemException("Cannot create, this menu item already exists"))
+          ctx.done
+      }
+      .onReadOnlyCommand[Get.type,MenuItemState]{
+        case (Get, ctx, state) =>
+          ctx.reply(state)
+      }
 }
 
 /**
   * The current state held by the persistent entity.
   */
-case class MenuItemState(message: String, timestamp: String)
+case class MenuItemState(name: String, description: String, price: String, orderCount: Int, created: LocalDateTime)
 
 object MenuItemState {
   /**
-    * Format for the hello state.
+    * Format for the menu item state.
     *
     * Persisted entities get snapshotted every configured number of events. This
     * means the state gets stored to the database, so that when the entity gets
@@ -93,6 +81,8 @@ object MenuItemState {
     * serialized and deserialized when storing to and from the database.
     */
   implicit val format: Format[MenuItemState] = Json.format
+
+  val empty = MenuItemState("", "", "", 0, LocalDateTime.now)
 }
 
 /**
@@ -106,9 +96,10 @@ object MenuItemState {
   */
 object MenuItemSerializerRegistry extends JsonSerializerRegistry {
   override def serializers: Seq[JsonSerializer[_]] = Seq(
-    JsonSerializer[UseGreetingMessage],
-    JsonSerializer[Hello],
-    JsonSerializer[GreetingMessageChanged],
-    JsonSerializer[MenuItemState]
+    JsonSerializer[CreateMenuItem],
+    JsonSerializer[Get.type],
+    JsonSerializer[MenuItemCreated],
+    JsonSerializer[MenuItemState],
+    JsonSerializer[MenuItemException]
   )
 }

@@ -3,33 +3,13 @@ package com.example.menuitem.api
 import play.api.libs.json.{Format, Json}
 
 /**
-  * The greeting message class.
-  */
-case class GreetingMessage(message: String)
-
-object GreetingMessage {
-  /**
-    * Format for converting greeting messages to and from JSON.
-    *
-    * This will be picked up by a Lagom implicit conversion from Play's JSON format to Lagom's message serializer.
-    */
-  implicit val format: Format[GreetingMessage] = Json.format[GreetingMessage]
-}
-
-
+ * Menu Item, and all details needed for printing on a menu or site.
+ */
+case class MenuItem(name: String, description: String, price: String)
+object MenuItem { implicit val format: Format[MenuItem] = Json.format[MenuItem] }
 
 /**
-  * The greeting message class used by the topic stream.
-  * Different than [[GreetingMessage]], this message includes the name (id).
-  */
-case class GreetingMessageChanged(name: String, message: String)
-
-object GreetingMessageChanged {
-  /**
-    * Format for converting greeting messages to and from JSON.
-    *
-    * This will be picked up by a Lagom implicit conversion from Play's JSON format to Lagom's message serializer.
-    */
-  implicit val format: Format[GreetingMessageChanged] = Json.format[GreetingMessageChanged]
-}
-
+ * Short menu item, for receipt data
+ */
+case class MenuItemShort(name: String, price: String)
+object MenuItemShort{ implicit val format: Format[MenuItemShort] = Json.format[MenuItemShort]}

@@ -1,44 +1,49 @@
 package com.example.menuitem.impl
 
-import com.example.menuitem.api
-import com.example.menuitem.api.MenuItemService
+import java.util.UUID
+
+import akka.NotUsed
+import com.example.menuitem.api.{MenuItem, MenuItemService, MenuItemShort}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
-import com.lightbend.lagom.scaladsl.api.broker.Topic
-import com.lightbend.lagom.scaladsl.broker.TopicProducer
-import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntityRegistry
+
+import scala.concurrent.ExecutionContext
 
 /**
   * Implementation of the MenuItemService.
   */
-class MenuItemServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) extends MenuItemService {
+class MenuItemServiceImpl(persistentEntityRegistry: PersistentEntityRegistry)(implicit ec: ExecutionContext) extends MenuItemService {
 
-  override def hello(id: String) = ServiceCall { _ =>
-    // Look up the Menu Item entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[MenuItemEntity](id)
+  private def entityRef(id: String) =
+    persistentEntityRegistry.refFor[MenuItemEntity](id)
 
-    // Ask the entity the Hello command.
-    ref.ask(Hello(id))
+  /**
+   * Example: curl http://localhost:9000/api/menuItem/1
+   */
+  override def menuItem(id: String): ServiceCall[NotUsed, MenuItem] = ServiceCall { _ =>
+    entityRef(id)
+      .ask(Get)
+      .map( state => MenuItem(state.name,state.description,state.price))
   }
 
-  override def useGreeting(id: String) = ServiceCall { request =>
-    // Look up the Menu Item entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[MenuItemEntity](id)
-
-    // Tell the entity to use the greeting message specified.
-    ref.ask(UseGreetingMessage(request.message))
+  /**
+   * Example: curl http://localhost:9000/api/menuItemShort/1
+   */
+  override def menuItemShort(id: String): ServiceCall[NotUsed, MenuItemShort] = ServiceCall{ _ =>
+    entityRef(id)
+      .ask(Get)
+      .map( state => MenuItemShort(state.name,state.price))
   }
 
-
-  override def greetingsTopic(): Topic[api.GreetingMessageChanged] =
-    TopicProducer.singleStreamWithOffset {
-      fromOffset =>
-        persistentEntityRegistry.eventStream(MenuItemEvent.Tag, fromOffset)
-          .map(ev => (convertEvent(ev), ev.offset))
-    }
-
-  private def convertEvent(helloEvent: EventStreamElement[MenuItemEvent]): api.GreetingMessageChanged = {
-    helloEvent.event match {
-      case GreetingMessageChanged(msg) => api.GreetingMessageChanged(helloEvent.entityId, msg)
-    }
+  /**
+   * Creates a menu item
+   * Example: curl -H "Content-Type: application/json" -X POST -d '{"id": "1", "name":
+   * "Bacon", "description":"Yummy bacon", "price":"0.50"}' http://localhost:9000/api/hello/Alice
+   */
+  override def createMenuItem(): ServiceCall[MenuItem, String] = ServiceCall{ request =>
+    val id = UUID.randomUUID.toString
+    entityRef(id)
+      .ask(CreateMenuItem(request.name, request.description, request.price))
+      .map( _ => id)
   }
 }

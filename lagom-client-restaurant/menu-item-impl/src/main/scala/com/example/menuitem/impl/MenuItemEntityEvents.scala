@@ -1,5 +1,7 @@
 package com.example.menuitem.impl
 
+import java.time.Instant
+
 import com.lightbend.lagom.scaladsl.persistence.{AggregateEvent, AggregateEventTag}
 import play.api.libs.json.{Format, Json}
 
@@ -15,17 +17,23 @@ object MenuItemEvent {
 }
 
 /**
-  * An event that represents a change in greeting message.
+  * An event that represents a creation of a menu item
   */
-case class GreetingMessageChanged(message: String) extends MenuItemEvent
+case class MenuItemCreated(name: String, description: String, price: String) extends MenuItemEvent
 
-object GreetingMessageChanged {
+object MenuItemCreated {
 
   /**
-    * Format for the greeting message changed event.
+    * Format for the Menu Item Created event.
     *
     * Events get stored and loaded from the database, hence a JSON format
     * needs to be declared so that they can be serialized and deserialized.
     */
-  implicit val format: Format[GreetingMessageChanged] = Json.format
+  implicit val format: Format[MenuItemCreated] = Json.format
+}
+
+case class MenuItemOrdered(eventTime: Instant) extends MenuItemEvent
+
+object MenuItemOrdered {
+  implicit val format: Format[MenuItemOrdered] = Json.format
 }

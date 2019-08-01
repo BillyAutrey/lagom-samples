@@ -1,7 +1,11 @@
 package com.example.menuitem.impl
 
+import java.time.LocalDateTime
+
+import akka.Done
 import akka.actor.ActorSystem
 import akka.testkit.TestKit
+import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.InvalidCommandException
 import com.lightbend.lagom.scaladsl.playjson.JsonSerializerRegistry
 import com.lightbend.lagom.scaladsl.testkit.PersistentEntityTestDriver
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpec}
@@ -23,16 +27,28 @@ class MenuItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
 
   "Menu Item entity" should {
 
-    "say hello by default" in withTestDriver { driver =>
-      val outcome = driver.run(Hello("Alice"))
-      outcome.replies should contain only "Hello, Alice!"
+    "When state is empty, and a CreateMenuItem is received, Create a menu item" in withTestDriver { driver =>
+      val createResult = driver.run(CreateMenuItem("name","test","1.00"))
+      createResult.events should contain only MenuItemCreated("name","test","1.00")
     }
 
-    "allow updating the greeting message" in withTestDriver { driver =>
-      val outcome1 = driver.run(UseGreetingMessage("Hi"))
-      outcome1.events should contain only GreetingMessageChanged("Hi")
-      val outcome2 = driver.run(Hello("Alice"))
-      outcome2.replies should contain only "Hi, Alice!"
+    "When state is empty, and Get is received, send an error" in withTestDriver { driver =>
+      val getResult = driver.run(Get)
+      getResult.replies.head shouldBe a [InvalidCommandException]
+    }
+
+    "When state is valid, and a CreateMenuItem is received, send an error" in withTestDriver { driver =>
+      val createResult = driver.run(CreateMenuItem("name","test","1.00"))
+      createResult.events should contain only MenuItemCreated("name","test","1.00")
+      val createResult2 = driver.run(CreateMenuItem("name","test","2.00"))
+      createResult2.replies.head shouldBe a [MenuItemException]
+    }
+
+    "When state is valid, and a Get is received, send the current state" in withTestDriver { driver =>
+      val createResult = driver.run(CreateMenuItem("name","test","1.00"))
+      createResult.events should contain only MenuItemCreated("name","test","1.00")
+      val result = driver.run(Get)
+      result.replies should contain only MenuItemState("name","test","1.00",_: Int,_: LocalDateTime)
     }
 
   }
