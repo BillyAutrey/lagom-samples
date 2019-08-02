@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: bbq-orders-config
-data:
-  CASSANDRA_CONTACT_POINT: "cassandra.cassandra"
-  KAFKA_BROKERS_SERVICE_URL: "bbq-strimzi-kafka-bootstrap.kafka:9092"
-  ALLOWED_HOST: "bbq-orders-svc.default"

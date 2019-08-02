@@ -1,29 +1,29 @@
  apiVersion: apps/v1
  kind: Deployment
  metadata:
-   name: bbq-orders
+   name: order
    namespace: default
    labels:
-     app: bbq-orders
+     app: order
  spec:
    replicas: 3
    selector:
      matchLabels:
-       app: bbq-orders
+       app: order
    template:
      metadata:
        labels:
-         app: bbq-orders
+         app: order
        annotations: # Annoations used for Enterprise Suite Metrics
          "prometheus.io/scrape": "true"
          "prometheus.io/scheme": "http"
          "prometheus.io/path": "/metrics"
          "prometheus.io/port": "9001"
      spec:
-       serviceAccountName: bbq-orders-sa
+       serviceAccountName: order-sa
        containers:
-       - name: bbq-orders
-         image: bbq-orders:0.1-SNAPSHOT
+       - name: order
+         image: order-impl:1.0-SNAPSHOT
          ports:
          - name: http
            containerPort: 9000
@@ -35,16 +35,16 @@
            containerPort: 9001
          envFrom:
          - configMapRef:
-             name: bbq-orders-config
+             name: order-config
          env:
            - name: "HTTP_BIND_ADDRESS"
              value: "0.0.0.0"
            - name: JAVA_OPTS
-             value: "-Dconfig.resource=application.prod.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+             value: "-Dconfig.resource=application.prod.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dpidfile.path=/dev/null"
            - name: "HOST_ADDRESS"
              valueFrom:
                fieldRef:
-                 fieldPath: "status.podIP"        
+                 fieldPath: "status.podIP"
          resources:
            requests:
              memory: "256Mi"

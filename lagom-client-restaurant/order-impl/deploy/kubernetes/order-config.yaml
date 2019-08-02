@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-config
+data:
+  CASSANDRA_CONTACT_POINT: "cassandra.cassandra"
+  KAFKA_BROKERS_SERVICE_URL: "restaurant-strimzi-kafka-bootstrap.kafka:9092"
+  ALLOWED_HOST: "order-svc.default"
