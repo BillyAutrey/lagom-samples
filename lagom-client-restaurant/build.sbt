@@ -12,6 +12,11 @@ val lagomScaladslAkkaDiscoveryServiceLocator = "com.lightbend.lagom" %% "lagom-s
 val akkaHttp = "com.typesafe.akka" %% "akka-http"   % "10.1.7" withSources()
 val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.7"
 
+val akkaMgmtVersion = "1.0.1"
+val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % akkaMgmtVersion
+val akkaServiceDiscovery = "com.lightbend.akka.discovery" %% "akka-discovery-dns" % akkaMgmtVersion
+val akkaDiscoveryK8s =  "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % akkaMgmtVersion
+
 lazy val `lagom-client-restaurant` = (project in file("."))
   .aggregate(`menu-item-api`, `menu-item-impl`, `order-api`, `order-impl`, `order-stream-api`, `order-stream-impl`, `restaurant-client`)
 
@@ -29,6 +34,9 @@ lazy val `menu-item-impl` = (project in file("menu-item-impl"))
       lagomScaladslPersistenceCassandra,
       lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
+      lagomScaladslAkkaDiscoveryServiceLocator,
+      akkaDiscoveryK8s,
+      akkaClusterBootstrap,
       macwire,
       scalaTest
     )
@@ -50,6 +58,9 @@ lazy val `order-impl` = (project in file("order-impl"))
       lagomScaladslPersistenceCassandra,
       lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
+      lagomScaladslAkkaDiscoveryServiceLocator,
+      akkaDiscoveryK8s,
+      akkaClusterBootstrap,
       macwire,
       scalaTest
     )

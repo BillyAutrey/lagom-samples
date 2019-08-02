@@ -1,6 +1,7 @@
 package com.example.menuitem.impl
 
 import com.example.menuitem.api.MenuItemService
+import com.lightbend.lagom.scaladsl.akka.discovery.AkkaDiscoveryComponents
 import com.lightbend.lagom.scaladsl.api.ServiceLocator
 import com.lightbend.lagom.scaladsl.api.ServiceLocator.NoServiceLocator
 import com.lightbend.lagom.scaladsl.broker.kafka.LagomKafkaComponents
@@ -14,9 +15,7 @@ import play.api.libs.ws.ahc.AhcWSComponents
 class MenuItemLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new MenuItemApplication(context) {
-      override def serviceLocator: ServiceLocator = NoServiceLocator
-    }
+    new MenuItemApplication(context) with AkkaDiscoveryComponents
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
     new MenuItemApplication(context) with LagomDevModeComponents
