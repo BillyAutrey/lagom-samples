@@ -9,6 +9,6 @@
    selector:
      app: menu-item
    ports:
-   - name: menu-item-http
+   - name: http
      port: 9000
      targetPort: http
