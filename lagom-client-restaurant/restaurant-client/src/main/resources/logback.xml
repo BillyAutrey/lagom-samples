@@ -1,0 +1,17 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{ISO8601} %-5level %logger{36} %X{sourceActorSystem} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.lightbend.lagom" level="DEBUG"/>
+
+    <logger name="akka.discovery" level="DEBUG"/>
+
+    <logger name="com.example" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

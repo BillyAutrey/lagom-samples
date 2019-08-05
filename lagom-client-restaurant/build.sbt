@@ -13,9 +13,13 @@ val akkaHttp = "com.typesafe.akka" %% "akka-http"   % "10.1.7" withSources()
 val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % "10.1.7"
 
 val akkaMgmtVersion = "1.0.1"
+val akkaVersion = "2.5.22"
+val akkaMgmt = "com.lightbend.akka.management" %% "akka-management" % akkaMgmtVersion
 val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % akkaMgmtVersion
-val akkaServiceDiscovery = "com.lightbend.akka.discovery" %% "akka-discovery-dns" % akkaMgmtVersion
+val akkaServiceDiscovery = "com.typesafe.akka" %% "akka-discovery" % akkaVersion
 val akkaDiscoveryK8s =  "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % akkaMgmtVersion
+val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
+val logback = "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 lazy val `lagom-client-restaurant` = (project in file("."))
   .aggregate(`menu-item-api`, `menu-item-impl`, `order-api`, `order-impl`, `order-stream-api`, `order-stream-impl`, `restaurant-client`)
@@ -87,16 +91,24 @@ lazy val `order-stream-impl` = (project in file("order-stream-impl"))
   .dependsOn(`order-stream-api`, `order-api`)
 
 lazy val `restaurant-client` = (project in file("restaurant-client"))
-  .enablePlugins(LagomScala)
+  //.enablePlugins(LagomScala)
+  .enablePlugins(JavaAppPackaging)
+  .enablePlugins(DockerPlugin)
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslClient withSources(),
       //lagomScaladslAkkaDiscovery, // Broken in 1.5.1, See Lagom PR 1948 for this fix
       lagomScaladslAkkaDiscoveryServiceLocator,
+      akkaSlf4j,
+      logback,
       akkaHttp,
+      akkaMgmt,
+      akkaServiceDiscovery,
+      akkaDiscoveryK8s,
       macwire,
       sprayJson,
       scalaTest
     )
   )
+  .settings(dockerBaseImage := "openjdk:8-jre-slim")
   .dependsOn(`order-api`,`menu-item-api`)

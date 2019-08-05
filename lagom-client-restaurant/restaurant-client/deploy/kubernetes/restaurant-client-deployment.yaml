@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-client
+  labels:
+    app: restaurant-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: restaurant-client
+  template:
+    metadata:
+      labels:
+        app: restaurant-client
+      annotations: # Annoations used for Enterprise Suite Metrics
+        "prometheus.io/scrape": "true"
+        "prometheus.io/scheme": "http"
+        "prometheus.io/path": "/metrics"
+        "prometheus.io/port": "9001"
+    spec:
+      containers:
+        - name: restaurant-client
+          image: restaurant-client:1.0-SNAPSHOT
+          ports:
+            - name: frontend-http
+              containerPort: 8080
+            - name: prometheus # Used for Enterprise Suite Metrics
+              containerPort: 9001
+              protocol: TCP
+          endpoint:
+          envFrom:
+            - configMapRef:
+                name: restaurant-client-config
+          env:
+            - name: "HTTP_BIND_ADDRESS"
+              value: "0.0.0.0"
+            - name: JAVA_OPTS
+              value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "2Gi"
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8558
+            initialDelaySeconds: 5
+            periodSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 8558
+            initialDelaySeconds: 60
+            periodSeconds: 30
