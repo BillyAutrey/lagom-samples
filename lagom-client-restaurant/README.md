@@ -43,19 +43,44 @@ Once you have installed Helm, you will need to [initialize it](https://helm.sh/d
 helm init --history-max 200
 ```
 ### Strimzi
-[Instructions](https://strimzi.io/quickstarts/minikube/) for installing Strimzi on minikube.
+Strimzi is an [operator](https://kubernetes.io/docs/concepts/extend-kubernetes/operator/), allowing us to create and manage Kafka instances with common kubectl commands.  To [install Strimzi via helm](https://strimzi.io/docs/latest/#deploying-cluster-operator-helm-chart-str):
 
-Note, we will use the kafka namespace for Strimzi.  Ensure that the namespace is created.  Once you have installed the Strimzi operator, apply the included kafka yaml.
-```shell script
-# Execute from the lagom-client-restaurant directory
-kubectl apply -f deploy/kubernetes/kafka/kafka-persistent-single.yaml -n kafka
-```
+1. First, add Strimzi charts to Helm, and update
+    ```shell script
+    helm repo add strimzi http://strimzi.io/charts/
+    helm repo update
+    ```
+
+2. Create a kafka namespace for Strimzi/Kafka resources.  This helps you manage resources locally.
+    ```shell script
+    kubectl create namespace kafka
+    ```
+3. Install the strimzi operator.  This installation will be specifically for our restaurant, so we will specify options for isolation.
+    ```shell script
+    helm install --namespace kafka --name restaurant-kafka strimzi/strimzi-kafka-operator
+    ```
+    Note, you can install the operator in multiple names and namespaces, with different configurations.
+
+4. Once you have installed the Strimzi operator, apply the included kafka yaml.
+    ```shell script
+    # Execute from the lagom-client-restaurant directory
+    kubectl apply -f deploy/kubernetes/kafka/kafka-persistent-single.yaml -n kafka
+    ```
+    This will take time to propagate.  You can check the status of deployment if you like.
+    ```shell script
+    kubectl get pods -n kafka
+    ```
+    
 ### Cassandra
 Using helm, we will install cassandra in the `cassandra` namespace in our minikube.
 
 ```shell script
+helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
+helm repo update
 helm install --namespace "cassandra" -n "cassandra" incubator/cassandra
 ```
+
+This will take some time to initialize.
 
 ## Building the project
 This project is aggregated, for your convenience.  Once you have set up minikube, you can build the project and publish it with the following process.
