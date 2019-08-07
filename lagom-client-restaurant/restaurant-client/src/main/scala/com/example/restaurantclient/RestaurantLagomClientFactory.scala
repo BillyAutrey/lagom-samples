@@ -9,6 +9,4 @@ import play.api.libs.ws.ahc.AhcWSComponents
 class RestaurantLagomClientFactory(val actorSystem: ActorSystem, val materializer: Materializer)
   extends LagomClientFactory("my-client", classOf[RestaurantLagomClientFactory].getClassLoader)
     with AkkaDiscoveryComponents
-    with AhcWSComponents {
-
-}
+    with AhcWSComponents
