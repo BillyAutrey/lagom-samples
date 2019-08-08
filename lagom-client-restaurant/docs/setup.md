@@ -81,3 +81,31 @@ helm install -f deploy/kubernetes/values.yaml --namespace "cassandra" -n "cassan
 ```
 
 This will take some time to initialize.
+
+## Lightbend Console
+Full installation instructions can be found [here](https://developer.lightbend.com/docs/console/current/installation/es.html).  Note, this section does not cover installation of commercial credentials, please see the original docs for more details.
+
+```shell script
+curl -O https://raw.githubusercontent.com/lightbend/console-charts/master/enterprise-suite/scripts/lbc.py
+chmod u+x lbc.py
+./lbc.py install --namespace=lightbend --version=1.1.1
+```
+
+This will take a while.  You can validate that it is up by using the following commands:
+```shell script
+kubernetes get pods -n lightbend
+./lbc.py verify --namespace=lightbend
+```
+
+The file [es-console-ingress.yaml](../deploy/kubernetes/es-console-ingress.yaml) will also deploy an ingress, mapping the url [console.local](http://console.local) to your minikube lightbend console.  To get the ingress working, use these commands:
+```shell script
+kubectl apply -f deploy/kubernetes/es-console-ingress.yaml
+printf "\n$(minikube ip) console.local" | sudo tee -a /etc/hosts
+```
+
+Wait for an IP to show up in your ingress list before attempting to hit this URL.
+```shell script
+➜ kubectl get ingress -n lightbend
+NAME                 HOSTS           ADDRESS        PORTS   AGE
+es-console-ingress   console.local   192.168.1.1    80      4m30s
+```
