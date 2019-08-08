@@ -1,0 +1,116 @@
+## Cassandra image version
+## ref: https://hub.docker.com/r/library/cassandra/
+image:
+  repo: cassandra
+  tag: 3.11.3
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: false
+  storageClass: "standard"
+  accessMode: ReadWriteOnce
+  size: 5Gi
+
+
+resources: {}
+
+config:
+  cluster_name: cassandra
+  cluster_size: 1
+  seed_size: 1
+  num_tokens: 0
+  # If you want Cassandra to use this datacenter and rack name,
+  # you need to set endpoint_snitch to GossipingPropertyFileSnitch.
+  # Otherwise, these values are ignored and datacenter1 and rack1
+  # are used.
+  dc_name: DC1
+  rack_name: RAC1
+  endpoint_snitch: SimpleSnitch
+  max_heap_size: 512M
+  heap_new_size: 256M
+  start_rpc: false
+  ports:
+    cql: 9042
+    thrift: 9160
+    # If a JVM Agent is in place
+    # agent: 61621
+
+## Cassandra config files overrides
+configOverrides: {}
+
+## Cassandra docker command overrides
+commandOverrides: []
+
+## Cassandra docker args overrides
+argsOverrides: []
+
+## Custom env variables.
+## ref: https://hub.docker.com/_/cassandra/
+env: {}
+
+## Liveness and Readiness probe values.
+## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/
+livenessProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 30
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+  address: "${POD_IP}"
+
+## Configure node selector. Edit code below for adding selector to pods
+## ref: https://kubernetes.io/docs/user-guide/node-selection/
+# selector:
+  # nodeSelector:
+    # cloud.google.com/gke-nodepool: pool-db
+
+## Additional pod annotations
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+## Additional pod labels
+## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+## Additional pod-level settings
+podSettings:
+  # Change this to give pods more time to properly leave the cluster when not using persistent storage.
+  terminationGracePeriodSeconds: 30
+
+## Pod distruption budget
+podDisruptionBudget: {}
+  # maxUnavailable: 1
+  # minAvailable: 2
+
+podManagementPolicy: OrderedReady
+updateStrategy:
+  type: OnDelete
+
+## Pod Security Context
+securityContext:
+  enabled: false
+  fsGroup: 999
+  runAsUser: 999
+
+## Affinity for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+## Node tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+# Use host network for Cassandra pods
+# You must pass seed list into config.seeds property if set to true
+hostNetwork: false
+
+

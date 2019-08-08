@@ -77,7 +77,7 @@ Using helm, we will install cassandra in the `cassandra` namespace in our miniku
 ```shell script
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 helm repo update
-helm install --namespace "cassandra" -n "cassandra" incubator/cassandra
+helm install -f deploy/kubernetes/values.yaml --namespace "cassandra" -n "cassandra" incubator/cassandra
 ```
 
 This will take some time to initialize.
