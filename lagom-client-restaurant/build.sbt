@@ -12,12 +12,21 @@ lazy val `menu-item-api` = (project in file("menu-item-api"))
     libraryDependencies += lagomScaladslApi
   )
 
+lazy val cinnamonSettings = Seq(
+  cinnamon in run := true,
+  cinnamon in test := true
+)
+
 lazy val `menu-item-impl` = (project in file("menu-item-impl"))
   .enablePlugins(LagomScala)
+  .enablePlugins(Cinnamon)
   .settings(
     libraryDependencies ++= lagomImplDeps
+    ++ cinnamonPrometheusDeps
+    ++ cinnamonLagomDeps
   )
   .settings(lagomForkedTestSettings)
+  .settings(cinnamonSettings)
   .dependsOn(`menu-item-api`)
 
 //lazy val `order-api` = (project in file("order-api"))
@@ -54,6 +63,7 @@ lazy val `menu-item-impl` = (project in file("menu-item-impl"))
 lazy val `restaurant-client` = (project in file("restaurant-client"))
   .enablePlugins(JavaAppPackaging)
   .enablePlugins(DockerPlugin)
+  .enablePlugins(Cinnamon)
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslClient,
@@ -68,4 +78,5 @@ lazy val `restaurant-client` = (project in file("restaurant-client"))
     )
   )
   .settings(dockerBaseImage := "openjdk:8-jre-slim")
+  .settings(cinnamonSettings)
   .dependsOn(/*`order-api`,*/`menu-item-api`)
