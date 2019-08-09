@@ -1,3 +1,4 @@
+import com.lightbend.cinnamon.sbt.Cinnamon
 import com.lightbend.lagom.core.LagomVersion
 import com.lightbend.lagom.sbt.LagomImport.{lagomScaladslKafkaBroker, lagomScaladslPersistenceCassandra, lagomScaladslTestKit}
 import sbt._
@@ -41,5 +42,24 @@ object Dependencies {
     akkaClusterBootstrap,
     macwire,
     scalaTest
+  )
+
+  val cinnamonPrometheusDeps = Seq(
+    Cinnamon.library.cinnamonPrometheus,
+    Cinnamon.library.cinnamonPrometheusHttpServer
+  )
+
+  val cinnamonLagomDeps = Seq(
+    Cinnamon.library.cinnamonLagom,
+    Cinnamon.library.cinnamonJvmMetricsProducer,
+    Cinnamon.library.cinnamonScala
+  )
+
+  val cinnamonAkkaHttpDeps = Seq(
+    Cinnamon.library.cinnamonAkka,
+    Cinnamon.library.cinnamonAkkaHttp,
+    Cinnamon.library.cinnamonJvmMetricsProducer,
+    Cinnamon.library.cinnamonScala,
+    Cinnamon.library.cinnamonLagom
   )
 }
