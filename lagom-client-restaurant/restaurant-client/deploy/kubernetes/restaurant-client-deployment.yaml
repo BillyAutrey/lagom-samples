@@ -28,7 +28,6 @@ spec:
             - name: prometheus # Used for Enterprise Suite Metrics
               containerPort: 9001
               protocol: TCP
-          endpoint:
           envFrom:
             - configMapRef:
                 name: restaurant-client-config
