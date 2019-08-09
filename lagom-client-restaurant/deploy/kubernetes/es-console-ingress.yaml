@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: es-console-ingress
+  namespace: lightbend
+spec:
+  rules:
+    - host: console.local
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: console-server
+              servicePort: 80
