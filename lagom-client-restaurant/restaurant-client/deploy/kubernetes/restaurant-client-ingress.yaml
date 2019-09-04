@@ -4,7 +4,7 @@ metadata:
   name: restaurant-client-ingress
 spec:
   rules:
-    - host: local-minikube.com
+    - host: minikube.local
       http:
         paths:
           - path: /

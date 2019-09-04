@@ -45,6 +45,8 @@ lazy val `restaurant-client` = (project in file("restaurant-client"))
       sprayJson,
       scalaTest
     )
+      ++ cinnamonPrometheusDeps
+      ++ cinnamonAkkaHttpDeps
   )
   .settings(dockerBaseImage := "openjdk:8-jre-slim")
   .settings(cinnamonSettings)

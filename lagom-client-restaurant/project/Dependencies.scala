@@ -47,6 +47,15 @@ object Dependencies {
 
   val cinnamonLagomDeps = Seq(
     Cinnamon.library.cinnamonLagom,
-    Cinnamon.library.cinnamonJvmMetricsProducer
+    Cinnamon.library.cinnamonJvmMetricsProducer,
+    Cinnamon.library.cinnamonScala
+  )
+
+  val cinnamonAkkaHttpDeps = Seq(
+    Cinnamon.library.cinnamonAkka,
+    Cinnamon.library.cinnamonAkkaHttp,
+    Cinnamon.library.cinnamonJvmMetricsProducer,
+    Cinnamon.library.cinnamonScala,
+    Cinnamon.library.cinnamonLagom
   )
 }
