@@ -29,36 +29,6 @@ lazy val `menu-item-impl` = (project in file("menu-item-impl"))
   .settings(cinnamonSettings)
   .dependsOn(`menu-item-api`)
 
-//lazy val `order-api` = (project in file("order-api"))
-//  .settings(
-//    libraryDependencies += lagomScaladslApi
-//  )
-//
-//lazy val `order-impl` = (project in file("order-impl"))
-//  .enablePlugins(LagomScala)
-//  .settings(
-//    libraryDependencies ++= lagomImplDeps
-//  )
-//  .settings(lagomForkedTestSettings)
-//  .dependsOn(`order-api`)
-//
-//lazy val `order-stream-api` = (project in file("order-stream-api"))
-//  .settings(
-//    libraryDependencies ++= Seq(
-//      lagomScaladslApi
-//    )
-//  )
-//
-//lazy val `order-stream-impl` = (project in file("order-stream-impl"))
-//  .enablePlugins(LagomScala)
-//  .settings(
-//    libraryDependencies ++= Seq(
-//      lagomScaladslTestKit,
-//      macwire,
-//      scalaTest
-//    )
-//  )
-//  .dependsOn(`order-stream-api`, `order-api`)
 
 lazy val `restaurant-client` = (project in file("restaurant-client"))
   .enablePlugins(JavaAppPackaging)
@@ -67,8 +37,7 @@ lazy val `restaurant-client` = (project in file("restaurant-client"))
   .settings(
     libraryDependencies ++= Seq(
       lagomScaladslClient,
-      //lagomScaladslAkkaDiscovery, // Broken in 1.5.1, See Lagom PR 1948 for this fix
-      lagomScaladslAkkaDiscoveryServiceLocator,
+      lagomScaladslAkkaDiscovery,
       akkaSlf4j,
       logback,
       akkaHttp,

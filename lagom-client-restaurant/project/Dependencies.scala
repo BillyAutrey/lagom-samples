@@ -1,6 +1,6 @@
 import com.lightbend.cinnamon.sbt.Cinnamon
 import com.lightbend.lagom.core.LagomVersion
-import com.lightbend.lagom.sbt.LagomImport.{lagomScaladslKafkaBroker, lagomScaladslPersistenceCassandra, lagomScaladslTestKit}
+import com.lightbend.lagom.sbt.LagomImport._
 import sbt._
 
 object Dependencies {
@@ -23,12 +23,8 @@ object Dependencies {
   lazy val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % akkaMgmtVersion
   lazy val akkaDiscoveryK8s =  "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % akkaMgmtVersion
 
-  //lagom
-  lazy val lagomScaladslAkkaDiscoveryServiceLocator = "com.lightbend.lagom" %% "lagom-scaladsl-akka-discovery-service-locator" % LagomVersion.current
-
   //misc
   lazy val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
-  //lazy val logback = "ch.qos.logback" % "logback-classic" % "1.2.3" //already in Play
 
   //test
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
@@ -37,9 +33,9 @@ object Dependencies {
     lagomScaladslPersistenceCassandra,
     lagomScaladslKafkaBroker,
     lagomScaladslTestKit,
-    lagomScaladslAkkaDiscoveryServiceLocator,
+    lagomScaladslAkkaDiscovery,
     akkaDiscoveryK8s,
-    akkaClusterBootstrap,
+    lagomScaladslCluster,
     macwire,
     scalaTest
   )

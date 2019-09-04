@@ -32,7 +32,7 @@ trait MenuItemService extends Service {
 
   override final def descriptor: Descriptor = {
     import Service._
-    // @formatter:off
+
     named("menu-item-svc")
       .withCalls(
         pathCall("/api/menuItem/:id", menuItem _),
@@ -40,6 +40,5 @@ trait MenuItemService extends Service {
         pathCall("/api/createMenuItem", createMenuItem() )
       )
       .withAutoAcl(true)
-    // @formatter:on
   }
 }
