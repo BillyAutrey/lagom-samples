@@ -42,8 +42,7 @@ lazy val `restaurant-client` = (project in file("restaurant-client"))
       logback,
       akkaHttp,
       akkaMgmt,
-      sprayJson,
-      scalaTest
+      sprayJson
     )
       ++ cinnamonPrometheusDeps
       ++ cinnamonAkkaHttpDeps
