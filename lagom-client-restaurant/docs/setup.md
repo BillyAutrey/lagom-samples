@@ -93,7 +93,7 @@ chmod u+x lbc.py
 
 This will take a while.  You can validate that it is up by using the following commands:
 ```shell script
-kubernetes get pods -n lightbend
+kubectl get pods -n lightbend
 ./lbc.py verify --namespace=lightbend
 ```
 
