@@ -27,8 +27,6 @@
          ports:
          - name: http
            containerPort: 9000
-         - name: akka-remote
-           containerPort: 2551
          - name: akka-mgmt-http
            containerPort: 8558
          - name: prometheus # Used for Enterprise Suite Metrics
@@ -37,14 +35,8 @@
          - configMapRef:
              name: menu-item-config
          env:
-           - name: "HTTP_BIND_ADDRESS"
-             value: "0.0.0.0"
            - name: "JAVA_OPTS"
              value: "-Dconfig.resource=application.prod.conf -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -Dpidfile.path=/dev/null"
-           - name: "HOST_ADDRESS"
-             valueFrom:
-               fieldRef:
-                 fieldPath: "status.podIP"
          resources:
            requests:
              memory: "256Mi"
