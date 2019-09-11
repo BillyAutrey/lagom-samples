@@ -24,7 +24,7 @@ minikube addons enable ingress
 
 And, finally, this configuration uses the URL `local-minikube.com` to point to our ingress.  You will want to edit your `/etc/hosts` file to map the result of `minikube ip` to `local-minikube.com`.  This command should add the appropriate line to `/etc/hosts` for you.
 ```shell script
-printf "\n$(minikube ip) local-minikube.com" | sudo tee -a /etc/hosts
+printf "\n$(minikube ip) minikube.local" | sudo tee -a /etc/hosts
 ```
 ## Helm
 [Helm](https://helm.sh/) is a utility that can be used to install applications in Kubernetes.  It can be thought of as a "package manager" for your Kubernetes environment.  We will use Helm to install Strimzi and Cassandra.
