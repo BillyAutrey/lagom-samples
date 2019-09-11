@@ -3,7 +3,5 @@ kind: ConfigMap
 metadata:
   name: menu-item-config
 data:
-  CASSANDRA_CONTACT_POINT: "cassandra.cassandra"
-  KAFKA_BROKERS_SERVICE_URL: "restaurant-strimzi-kafka-bootstrap.kafka:9092"
-  #ALLOWED_HOST: "menu-item-svc.default"
-  ALLOWED_HOST: "."
+  CASSANDRA_SERVICE_NAME: "_cql._tcp.cassandra.cassandra"
+  KAFKA_SERVICE_NAME: "_clients._tcp.restaurant-strimzi-kafka-bootstrap.kafka"
