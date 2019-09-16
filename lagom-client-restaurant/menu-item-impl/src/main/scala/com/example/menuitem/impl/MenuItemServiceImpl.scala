@@ -40,10 +40,9 @@ class MenuItemServiceImpl(persistentEntityRegistry: PersistentEntityRegistry)(im
    * Example: curl -H "Content-Type: application/json" -X POST -d '{"id": "1", "name":
    * "Bacon", "description":"Yummy bacon", "price":"0.50"}' http://localhost:9000/api/hello/Alice
    */
-  override def createMenuItem(): ServiceCall[MenuItem, String] = ServiceCall{ request =>
-    val id = UUID.randomUUID.toString
+  override def createMenuItem(id: String): ServiceCall[MenuItem, NotUsed] = ServiceCall{ request =>
     entityRef(id)
       .ask(CreateMenuItem(request.name, request.description, request.price))
-      .map( _ => id)
+      .map(_ => NotUsed)
   }
 }

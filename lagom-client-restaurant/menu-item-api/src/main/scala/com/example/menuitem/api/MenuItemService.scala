@@ -14,21 +14,23 @@ import com.lightbend.lagom.scaladsl.api.{Descriptor, Service, ServiceCall}
 trait MenuItemService extends Service {
 
   /**
-    * Example: curl http://localhost:9000/api/menuItem/1
+    * Example: curl http://localhost:9000/api/menuItem/bacon
     */
   def menuItem(id: String): ServiceCall[NotUsed, MenuItem]
 
   /**
-    * Example: curl http://localhost:9000/api/menuItemShort/1
+    * Example: curl http://localhost:9000/api/menuItemShort/bacon
     */
   def menuItemShort(id: String): ServiceCall[NotUsed, MenuItemShort]
 
   /**
-   * Creates a menu item
-   * Example: curl -H "Content-Type: application/json" -X POST -d '{"id": "1", "name":
-   * "Bacon", "description":"Yummy bacon", "price":"0.50"}' http://localhost:9000/api/hello/Alice
-   */
-  def createMenuItem(): ServiceCall[MenuItem, String]
+    * Creates a menu item with a specific ID
+    *
+    * Example: curl -H "Content-Type: application/json" -X POST -d '{"name": "Bacon", "description":"Yummy bacon", "price":"0.50"}' http://localhost:9000/api/createMenuItem/bacon
+    *
+    * @param id The identifier used to reference this entity
+    */
+  def createMenuItem(id: String): ServiceCall[MenuItem, NotUsed]
 
   override final def descriptor: Descriptor = {
     import Service._
@@ -37,7 +39,7 @@ trait MenuItemService extends Service {
       .withCalls(
         pathCall("/api/menuItem/:id", menuItem _),
         pathCall("/api/menuItemShort/:id", menuItemShort _),
-        pathCall("/api/createMenuItem", createMenuItem() )
+        pathCall("/api/createMenuItem/:id", createMenuItem _ )
       )
       .withAutoAcl(true)
   }

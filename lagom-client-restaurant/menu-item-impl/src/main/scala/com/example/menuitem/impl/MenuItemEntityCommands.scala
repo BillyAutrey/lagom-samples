@@ -1,6 +1,6 @@
 package com.example.menuitem.impl
 
-import akka.Done
+import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
 import play.api.libs.json.{Format, JsSuccess, Json, Reads, Writes}
 

@@ -2,7 +2,7 @@ package com.example.menuitem.impl
 
 import java.time.LocalDateTime
 
-import akka.Done
+import akka.{Done, NotUsed}
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 import play.api.libs.json.{Format, Json}
@@ -29,7 +29,7 @@ class MenuItemEntity extends PersistentEntity {
     * is a function of the current state to a set of actions.
     */
   override def behavior: Behavior = {
-    case MenuItemState.empty => uninitialized
+    case MenuItemState.empty => moreCommands(moreCommands(uninitialized))
     case _ => initialized
   }
 
@@ -52,10 +52,20 @@ class MenuItemEntity extends PersistentEntity {
           state.copy(name = name, description = desc, price = price)
       }
 
+  private def moreCommands(actions: Actions) =
+    actions.onCommand[CreateMenuItem,Done]{
+      case (CreateMenuItem(name,desc,price),ctx,state) =>
+        ctx.thenPersist(
+          MenuItemCreated(name,desc,price)
+        ) { _ =>
+          ctx.reply(Done)
+        }
+    }
+
   private def initialized =
     Actions()
       .onCommand[CreateMenuItem,Done]{
-        case (_,ctx,state) =>
+        case (_,ctx,_) =>
           ctx.commandFailed(MenuItemException("Cannot create, this menu item already exists"))
           ctx.done
       }
