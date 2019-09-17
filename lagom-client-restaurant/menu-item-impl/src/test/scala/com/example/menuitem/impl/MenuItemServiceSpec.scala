@@ -1,5 +1,6 @@
 package com.example.menuitem.impl
 
+import akka.NotUsed
 import com.example.menuitem.api._
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
 import com.lightbend.lagom.scaladsl.testkit.ServiceTest
@@ -15,6 +16,7 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
   }
 
   val client: MenuItemService = server.serviceClient.implement[MenuItemService]
+  val testId: String = "test"
 
   override protected def afterAll(): Unit = server.stop()
 
@@ -22,16 +24,17 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
 
     "Create a menu item" in {
       for {
-        id <- client.createMenuItem().invoke(MenuItem("name", "desc", "1.00"))
+        answer <- client.createMenuItem(testId).invoke(MenuItem("name", "desc", "1.00"))
+        menuItem <- client.menuItem(testId).invoke()
       } yield {
-        id shouldBe a [String]
+        answer shouldBe a [NotUsed] //function returned
+        menuItem shouldBe a [MenuItem] //just testing that a get doesn't fail
       }
     }
 
     "Get a menu item" in {
       for {
-        id <- client.createMenuItem().invoke(MenuItem("name","desc","1.00"))
-        answer <- client.menuItem(id).invoke()
+        answer <- client.menuItem(testId).invoke()
       } yield {
         answer should ===(MenuItem("name","desc","1.00"))
       }
@@ -39,8 +42,7 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
 
     "Get an abbreviated menu item" in {
       for {
-        id <- client.createMenuItem().invoke(MenuItem("name","desc","1.00"))
-        answer <- client.menuItemShort(id).invoke()
+        answer <- client.menuItemShort(testId).invoke()
       } yield {
         answer should ===(MenuItemShort("name","1.00"))
       }

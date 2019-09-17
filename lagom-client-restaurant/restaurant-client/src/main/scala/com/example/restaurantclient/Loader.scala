@@ -15,7 +15,6 @@ import scala.util.{Failure, Success}
 object Loader extends App with MenuItemRoutes{
   implicit val system   = ActorSystem("restaurant-client")
   implicit val materializer  = ActorMaterializer()(system)
-  implicit val executionContext: ExecutionContext = system.dispatcher
   val clientFactory = new RestaurantLagomClientFactory(system, materializer)
 
   val host = system.settings.config.getString("akka.management.http.hostname")
