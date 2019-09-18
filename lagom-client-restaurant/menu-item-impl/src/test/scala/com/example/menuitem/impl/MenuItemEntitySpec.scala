@@ -28,26 +28,42 @@ class MenuItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
   "Menu Item entity" should {
 
     "When state is empty, and a CreateMenuItem is received, Create a menu item" in withTestDriver { driver =>
+      //Send a create command
       val createResult = driver.run(CreateMenuItem("name","test","1.00"))
+
+      //Assert that an event was generated with the new state
       createResult.events should contain only MenuItemCreated("name","test","1.00")
     }
 
     "When state is empty, and Get is received, send an error" in withTestDriver { driver =>
+      //Send a Get command.  Note, new test.  State is empty.
       val getResult = driver.run(Get)
+
+      //Get on empty returns an error.
       getResult.replies.head shouldBe a [InvalidCommandException]
     }
 
     "When state is valid, and a CreateMenuItem is received, send an error" in withTestDriver { driver =>
+      //Creating the initial state for the test, and asserting to guarantee it.
       val createResult = driver.run(CreateMenuItem("name","test","1.00"))
       createResult.events should contain only MenuItemCreated("name","test","1.00")
+
+      //Try to create the same item
       val createResult2 = driver.run(CreateMenuItem("name","test","2.00"))
+
+      //Assert that we got an error
       createResult2.replies.head shouldBe a [MenuItemException]
     }
 
     "When state is valid, and a Get is received, send the current state" in withTestDriver { driver =>
+      //Creating the initial state for the test, and asserting to guarantee it.
       val createResult = driver.run(CreateMenuItem("name","test","1.00"))
       createResult.events should contain only MenuItemCreated("name","test","1.00")
+
+      //Run a Get command
       val result = driver.run(Get)
+
+      //Assert that we responded with the correct response (state)
       result.replies should contain only MenuItemState("name","test","1.00",_: Int,_: LocalDateTime)
     }
 
