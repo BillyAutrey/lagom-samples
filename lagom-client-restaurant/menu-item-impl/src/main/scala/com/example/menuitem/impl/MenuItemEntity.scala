@@ -29,7 +29,7 @@ class MenuItemEntity extends PersistentEntity {
     * is a function of the current state to a set of actions.
     */
   override def behavior: Behavior = {
-    case MenuItemState.empty => moreCommands(moreCommands(uninitialized))
+    case MenuItemState.empty => uninitialized
     case _ => initialized
   }
 
@@ -51,16 +51,6 @@ class MenuItemEntity extends PersistentEntity {
         case (MenuItemCreated(name,desc,price), state) =>
           state.copy(name = name, description = desc, price = price)
       }
-
-  private def moreCommands(actions: Actions) =
-    actions.onCommand[CreateMenuItem,Done]{
-      case (CreateMenuItem(name,desc,price),ctx,state) =>
-        ctx.thenPersist(
-          MenuItemCreated(name,desc,price)
-        ) { _ =>
-          ctx.reply(Done)
-        }
-    }
 
   private def initialized =
     Actions()
