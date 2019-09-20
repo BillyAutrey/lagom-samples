@@ -47,6 +47,15 @@ class MenuItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
       getResult.events.size should ===(0)
     }
 
+    "When state is empty, and ChangePrice is received, send an error" in withTestDriver { driver =>
+      //Send a Get command.  Note, new test.  State is empty.
+      val getResult = driver.run(ChangePrice("2.00"))
+
+      //ChangePrice on empty returns an error.
+      getResult.replies.head shouldBe a [InvalidCommandException]
+      getResult.events.size should ===(0)
+    }
+
     "When state is valid, and a CreateMenuItem is received, send an error" in withTestDriver { driver =>
       //Creating the initial state for the test, and asserting to guarantee it.
       val createResult = driver.run(CreateMenuItem("name","test","1.00"))
@@ -74,6 +83,23 @@ class MenuItemEntitySpec extends WordSpec with Matchers with BeforeAndAfterAll {
 
       //Assert that we responded with the correct response (state)
       result.replies should contain only MenuItemState("name","test","1.00",_: Int,_: LocalDateTime)
+    }
+
+    "When state is valid, and a ChangePrice is received, update the price" in withTestDriver { driver =>
+      //Creating the initial state for the test, and asserting to guarantee it.
+      val createResult = driver.run(CreateMenuItem("name","test","1.00"))
+      createResult.events should contain only MenuItemCreated("name","test","1.00")
+      createResult.state.name should ===("name")
+      createResult.replies should ===(List(Done))
+
+      //Run a ChangePrice command
+      val result = driver.run(ChangePrice("2.00"))
+
+      //Assert that we responded with the correct response (state)
+      result.events should contain only PriceChanged(_: String,"2.00")
+      result.replies should ===(List(Done))
+      result.state.price should ===("2.00")
+
     }
 
   }
