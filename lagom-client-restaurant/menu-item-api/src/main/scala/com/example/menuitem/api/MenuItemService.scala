@@ -32,6 +32,15 @@ trait MenuItemService extends Service {
     */
   def createMenuItem(id: String): ServiceCall[MenuItem, NotUsed]
 
+  /**
+    * Change prices
+    * @param id The entity whose price needs to change
+    * @return
+    */
+  def changePrice(id: String): ServiceCall[Price,NotUsed]
+
+  def priceChanges(): Topic[PriceChanged]
+
   override final def descriptor: Descriptor = {
     import Service._
 
@@ -39,8 +48,16 @@ trait MenuItemService extends Service {
       .withCalls(
         pathCall("/api/menuItem/:id", menuItem _),
         pathCall("/api/menuItemShort/:id", menuItemShort _),
-        pathCall("/api/createMenuItem/:id", createMenuItem _ )
+        pathCall("/api/createMenuItem/:id", createMenuItem _ ),
+        pathCall("/api/changePrice/:id", changePrice _)
+      )
+      .withTopics(
+        topic(MenuItemService.TOPIC_NAME, priceChanges)
       )
       .withAutoAcl(true)
   }
+}
+
+object MenuItemService {
+  val TOPIC_NAME = "price_changes"
 }

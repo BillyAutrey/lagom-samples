@@ -26,7 +26,7 @@ class MenuItemLoader extends LagomApplicationLoader {
 abstract class MenuItemApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
     with CassandraPersistenceComponents
-    with LagomKafkaComponents
+    //with LagomKafkaComponents
     with AhcWSComponents {
 
   // Bind the service that this server provides

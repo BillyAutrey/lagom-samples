@@ -25,7 +25,7 @@ class MenuItemServiceForEachSpec extends AsyncWordSpec with Matchers with Before
     } {  server =>
       val client: MenuItemService = server.serviceClient.implement[MenuItemService]
       for {
-        answer <- client.createMenuItem(testId).invoke(MenuItem("name", "desc", "1.00"))
+        answer <- client.createMenuItem(testId).invoke(MenuItem("name", "desc", Price("1.00")))
         menuItem <- client.menuItem(testId).invoke()
       } yield {
         answer shouldBe a [NotUsed] //function returned

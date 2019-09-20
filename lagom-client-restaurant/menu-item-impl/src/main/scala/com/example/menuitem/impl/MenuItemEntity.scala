@@ -54,14 +54,24 @@ class MenuItemEntity extends PersistentEntity {
 
   private def initialized =
     Actions()
-      .onCommand[CreateMenuItem,Done]{
-        case (_,ctx,_) =>
-          ctx.commandFailed(MenuItemException("Cannot create, this menu item already exists"))
-          ctx.done
+      .onCommand[CreateMenuItem,Done]{ case (_,ctx,_) =>
+        ctx.commandFailed(MenuItemException("Cannot create, this menu item already exists"))
+        ctx.done
+      }
+      .onCommand[ChangePrice,Done]{ case (ChangePrice(value),ctx,state) =>
+        ctx.thenPersist(
+          PriceChanged(entityId,value)
+        ){ _ =>
+          ctx.reply(Done)
+        }
       }
       .onReadOnlyCommand[Get.type,MenuItemState]{
         case (Get, ctx, state) =>
           ctx.reply(state)
+      }
+      .onEvent{
+        case (PriceChanged(_,value), state) =>
+          state.copy(price = value)
       }
 }
 

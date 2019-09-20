@@ -37,3 +37,9 @@ case object Get extends MenuItemCommand[MenuItemState] {
     Writes( _ => Json.obj() )
   )
 }
+
+case class ChangePrice(value: String) extends MenuItemCommand[Done]
+
+object ChangePrice {
+  implicit val format: Format[ChangePrice] = Json.format
+}

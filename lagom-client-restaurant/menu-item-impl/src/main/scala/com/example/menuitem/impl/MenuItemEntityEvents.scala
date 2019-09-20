@@ -37,3 +37,10 @@ case class MenuItemOrdered(eventTime: Instant) extends MenuItemEvent
 object MenuItemOrdered {
   implicit val format: Format[MenuItemOrdered] = Json.format
 }
+
+//todo - don't need the id?
+case class PriceChanged(id: String, value: String) extends MenuItemEvent
+
+object PriceChanged {
+  implicit val format: Format[PriceChanged] = Json.format
+}
