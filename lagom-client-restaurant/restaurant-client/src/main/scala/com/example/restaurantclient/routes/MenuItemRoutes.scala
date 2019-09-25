@@ -1,13 +1,11 @@
 package com.example.restaurantclient.routes
 
 import akka.actor.ActorSystem
-import akka.event.slf4j.Logger
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.CompleteOrRecoverWithMagnet
-import com.example.menuitem.api.{MenuItem, MenuItemService, MenuItemShort}
+import com.example.menuitem.api.{MenuItem, MenuItemService, MenuItemShort, Price}
 import spray.json._
 
 import scala.concurrent.ExecutionContext
@@ -38,7 +36,7 @@ trait MenuItemRoutes extends JsonSupport{
               completeOrRecoverWith(CompleteOrRecoverWithMagnet(
                 menuItemClient
                   .createMenuItem(id)
-                  .invoke(MenuItem(name, description, price))
+                  .invoke(MenuItem(name, description, Price(price)))
                   .map(_ => s"$id")
               )) { extraction =>
                 failWith(extraction)
