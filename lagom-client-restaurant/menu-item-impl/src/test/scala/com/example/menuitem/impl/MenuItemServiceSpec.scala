@@ -8,7 +8,7 @@ import akka.stream.testkit.scaladsl.TestSink
 import com.example.menuitem.api._
 import com.example.menuitem.api
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.{ServiceTest, TestTopicComponents}
+import com.lightbend.lagom.scaladsl.testkit.{ServiceTest, TestTopicComponents, TestTopicFactory}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 
 class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
@@ -68,6 +68,22 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
       }
     }
 
+    "Publish price change events on the topic" in {
+      implicit val system = server.actorSystem
+      implicit val mat    = server.materializer
+
+      val testId = generateTestId
+      val source = client.priceChanges().subscribe.atMostOnceSource
+
+      createMenuItem(testId)
+        .map( _ => client.changePrice(testId).invoke(Price("2.00")))
+        .map( _ =>source
+        .runWith(TestSink.probe[api.PriceChanged])
+        .request(1)
+        .expectNext should ===(api.PriceChanged(testId,"2.00")))
+
+    }
+
     "Change prices for a menu item" in {
       val testId = generateTestId
 
@@ -79,25 +95,6 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
         response shouldBe a [NotUsed]
         item should === (MenuItemShort(name, Price("2.00")))
       }
-    }
-
-    "Publish price change events on the topic" in {
-      implicit val system = server.actorSystem
-      implicit val mat    = server.materializer
-
-      val testId = generateTestId
-      val source = client.priceChanges().subscribe.atMostOnceSource
-
-      val list = List(1 to 10)
-      Source(list)
-      createMenuItem(testId)
-      client.changePrice(testId).invoke(Price("2.00"))
-
-      source
-        .runWith(TestSink.probe[api.PriceChanged])
-        .request(1)
-        .expectNext should ===(api.PriceChanged(testId,"2.00"))
-
     }
   }
 }

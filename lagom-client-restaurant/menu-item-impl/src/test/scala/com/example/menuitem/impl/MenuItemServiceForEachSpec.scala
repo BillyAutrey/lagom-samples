@@ -5,7 +5,7 @@ import java.util.UUID
 import akka.NotUsed
 import com.example.menuitem.api._
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import com.lightbend.lagom.scaladsl.testkit.{ServiceTest, TestTopicComponents}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 
 /**
@@ -21,7 +21,7 @@ class MenuItemServiceForEachSpec extends AsyncWordSpec with Matchers with Before
 
     "Create a menu item" in ServiceTest.withServer(ServiceTest.defaultSetup.withCassandra()) {
       ctx =>
-        new MenuItemApplication(ctx) with LocalServiceLocator
+        new MenuItemApplication(ctx) with LocalServiceLocator with TestTopicComponents
     } {  server =>
       val client: MenuItemService = server.serviceClient.implement[MenuItemService]
       for {

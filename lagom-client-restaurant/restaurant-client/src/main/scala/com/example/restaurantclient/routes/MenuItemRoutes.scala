@@ -11,6 +11,7 @@ import spray.json._
 import scala.concurrent.ExecutionContext
 
 trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
+  implicit val priceFormat = jsonFormat1(Price.apply)
   implicit val menuItemFormat = jsonFormat3(MenuItem.apply)
   implicit val menuItemShortFormat = jsonFormat2(MenuItemShort.apply)
 }
@@ -19,7 +20,7 @@ trait MenuItemRoutes extends JsonSupport{
 
   def menuItemClient: MenuItemService
   def system: ActorSystem
-  implicit val executionContext: ExecutionContext = system.dispatcher
+  implicit lazy val executionContext: ExecutionContext = system.dispatcher
 
   lazy val menuItemRoutes: Route =
     concat(
