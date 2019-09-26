@@ -2,7 +2,7 @@ package com.example.menuitem.impl
 
 import java.time.LocalDateTime
 
-import akka.{Done, NotUsed}
+import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 import play.api.libs.json.{Format, Json}
