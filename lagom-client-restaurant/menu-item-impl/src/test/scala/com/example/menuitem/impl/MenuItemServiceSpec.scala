@@ -13,10 +13,13 @@ import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
   private val server = ServiceTest.startServer(
-    ServiceTest.defaultSetup
+    ServiceTest
+      .defaultSetup
       .withCassandra()
   ) { ctx =>
-    new MenuItemApplication(ctx) with LocalServiceLocator with TestTopicComponents
+    new MenuItemApplication(ctx)
+      with LocalServiceLocator
+      with TestTopicComponents
   }
 
   val client: MenuItemService = server.serviceClient.implement[MenuItemService]
