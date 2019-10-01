@@ -28,6 +28,14 @@ object Dependencies {
 
   //test
   lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
+  lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.14.1" % "test"
+  lazy val akkaStreamsTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.23" % Test
+  lazy val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % "10.1.10" % Test
+  
+  lazy val mockito = Seq(
+      "org.mockito" %% "mockito-scala" % "1.5.18" % Test
+      "org.mockito" %% "mockito-scala-scalatest" % "1.5.18" % Test
+    )
 
   val lagomImplDeps = Seq(
     lagomScaladslPersistenceCassandra,
@@ -37,7 +45,8 @@ object Dependencies {
     akkaDiscoveryK8s,
     lagomScaladslCluster,
     macwire,
-    scalaTest
+    scalaTest,
+    scalaCheck
   )
 
   val cinnamonPrometheusDeps = Seq(

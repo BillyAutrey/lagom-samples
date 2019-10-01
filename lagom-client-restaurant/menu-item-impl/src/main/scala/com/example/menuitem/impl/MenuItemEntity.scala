@@ -2,7 +2,7 @@ package com.example.menuitem.impl
 
 import java.time.LocalDateTime
 
-import akka.{Done, NotUsed}
+import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity
 import com.lightbend.lagom.scaladsl.playjson.{JsonSerializer, JsonSerializerRegistry}
 import play.api.libs.json.{Format, Json}
@@ -29,49 +29,56 @@ class MenuItemEntity extends PersistentEntity {
     * is a function of the current state to a set of actions.
     */
   override def behavior: Behavior = {
-    case MenuItemState.empty => moreCommands(moreCommands(uninitialized))
+    case MenuItemState.empty => uninitialized
     case _ => initialized
   }
 
   private def uninitialized =
     Actions()
-      .onCommand[CreateMenuItem,Done]{
+      .onCommand[CreateMenuItem, Done] {
         case (CreateMenuItem(name, desc, price), ctx, state) =>
           ctx.thenPersist(
-            MenuItemCreated(name,desc,price)
+            MenuItemCreated(name, desc, price)
           ) { _ =>
             ctx.reply(Done)
           }
       }
-      .onReadOnlyCommand[Get.type,MenuItemState]{
+      .onCommand[ChangePrice, Done] {
+        case (ChangePrice(_), ctx, state) =>
+          ctx.invalidCommand(s"Menu item $entityId has not been initialized.")
+          ctx.done
+      }
+      .onReadOnlyCommand[Get.type, MenuItemState] {
         case (Get, ctx, state) =>
           ctx.invalidCommand(s"Menu item $entityId has not been initialized.")
       }
       .onEvent {
-        case (MenuItemCreated(name,desc,price), state) =>
+        case (MenuItemCreated(name, desc, price), state) =>
           state.copy(name = name, description = desc, price = price)
       }
 
-  private def moreCommands(actions: Actions) =
-    actions.onCommand[CreateMenuItem,Done]{
-      case (CreateMenuItem(name,desc,price),ctx,state) =>
-        ctx.thenPersist(
-          MenuItemCreated(name,desc,price)
-        ) { _ =>
-          ctx.reply(Done)
-        }
-    }
-
   private def initialized =
     Actions()
-      .onCommand[CreateMenuItem,Done]{
-        case (_,ctx,_) =>
+      .onCommand[CreateMenuItem, Done] {
+        case (_, ctx, _) =>
           ctx.commandFailed(MenuItemException("Cannot create, this menu item already exists"))
           ctx.done
       }
-      .onReadOnlyCommand[Get.type,MenuItemState]{
+      .onCommand[ChangePrice, Done] {
+        case (ChangePrice(value), ctx, state) =>
+          ctx.thenPersist(
+            PriceChanged(entityId, value)
+          ) { _ =>
+            ctx.reply(Done)
+          }
+      }
+      .onReadOnlyCommand[Get.type, MenuItemState] {
         case (Get, ctx, state) =>
           ctx.reply(state)
+      }
+      .onEvent {
+        case (PriceChanged(_, value), state) =>
+          state.copy(price = value)
       }
 }
 
@@ -110,6 +117,8 @@ object MenuItemSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[Get.type],
     JsonSerializer[MenuItemCreated],
     JsonSerializer[MenuItemState],
-    JsonSerializer[MenuItemException]
+    JsonSerializer[MenuItemException],
+    JsonSerializer[ChangePrice],
+    JsonSerializer[PriceChanged]
   )
 }

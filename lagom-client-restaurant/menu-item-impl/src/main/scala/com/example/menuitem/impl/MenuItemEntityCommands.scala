@@ -1,8 +1,8 @@
 package com.example.menuitem.impl
 
-import akka.{Done, NotUsed}
+import akka.Done
 import com.lightbend.lagom.scaladsl.persistence.PersistentEntity.ReplyType
-import play.api.libs.json.{Format, JsSuccess, Json, Reads, Writes}
+import play.api.libs.json._
 
 /**
   * This interface defines all the commands that the MenuItemEntity supports.
@@ -36,4 +36,10 @@ case object Get extends MenuItemCommand[MenuItemState] {
     Reads( _ => JsSuccess(Get)),
     Writes( _ => Json.obj() )
   )
+}
+
+case class ChangePrice(value: String) extends MenuItemCommand[Done]
+
+object ChangePrice {
+  implicit val format: Format[ChangePrice] = Json.format
 }
