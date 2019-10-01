@@ -79,7 +79,7 @@ class MenuItemServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfte
 
       createMenuItem(testId)
         .map( _ => client.changePrice(testId).invoke(Price("2.00")))
-        .map( _ =>source
+        .map( _ => source
         .runWith(TestSink.probe[api.PriceChanged])
         .request(1)
         .expectNext should ===(api.PriceChanged(testId,"2.00")))

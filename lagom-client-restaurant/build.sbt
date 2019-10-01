@@ -42,10 +42,14 @@ lazy val `restaurant-client` = (project in file("restaurant-client"))
       logback,
       akkaHttp,
       akkaMgmt,
-      sprayJson
+      sprayJson,
+      scalaTest,
+      akkaStreamsTestkit,
+      akkaHttpTestkit
     )
       ++ cinnamonPrometheusDeps
       ++ cinnamonAkkaHttpDeps
+      ++ mockito
   )
   .settings(dockerBaseImage := "openjdk:8-jre-slim")
   .settings(cinnamonSettings)
