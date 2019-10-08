@@ -33,7 +33,7 @@ object Dependencies {
   lazy val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % "10.1.10" % Test
   
   lazy val mockito = Seq(
-      "org.mockito" %% "mockito-scala" % "1.5.18" % Test
+      "org.mockito" %% "mockito-scala" % "1.5.18" % Test,
       "org.mockito" %% "mockito-scala-scalatest" % "1.5.18" % Test
     )
 
