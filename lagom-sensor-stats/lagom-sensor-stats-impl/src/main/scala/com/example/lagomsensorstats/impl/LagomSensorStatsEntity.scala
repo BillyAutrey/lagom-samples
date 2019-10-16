@@ -11,13 +11,14 @@ import play.api.libs.json.{Format, Json}
 import scala.collection.immutable.Seq
 
 /**
-  * This is an event sourced entity. It has a state, [[LagomSensorStatsState]], which
-  * stores what the greeting should be (eg, "Hello").
+  * This is an event sourced entity. It has a state, [[LagomSensorState]], which
+  * stores sensor data and the last time it was updated.
   *
   * Event sourced entities are interacted with by sending them commands. This
-  * entity supports two commands, a [[UseGreetingMessage]] command, which is
-  * used to change the greeting, and a [[Hello]] command, which is a read
-  * only command which returns a greeting to the name specified by the command.
+  * entity supports three commands:
+  * [[CreateSensor]] command (used to create the sensor)
+  * [[Get]] command (read only command to query for state)
+  * [[UpdateSensor]] command (to update current sensor state)
   *
   * Commands get translated to events, and it's the events that get persisted by
   * the entity. Each event will have an event handler registered for it, and an
@@ -26,66 +27,65 @@ import scala.collection.immutable.Seq
   * loaded from the database - each event will be replayed to recreate the state
   * of the entity.
   *
-  * This entity defines one event, the [[GreetingMessageChanged]] event,
-  * which is emitted when a [[UseGreetingMessage]] command is received.
+  * This entity defines two events, the [[SensorCreated]] event,
+  * which is emitted when a [[CreateSensor]] command is received, and a
+  * [[SensorUpdated]] event, which is emitted when a [[UpdateSensor]]
+  * command is received.
   */
 class LagomSensorStatsEntity extends PersistentEntity {
 
   override type Command = LagomSensorStatsCommand[_]
   override type Event = LagomSensorStatsEvent
-  override type State = LagomSensorStatsState
+  override type State = LagomSensorState
 
   /**
     * The initial state. This is used if there is no snapshotted state to be found.
     */
-  override def initialState: LagomSensorStatsState = LagomSensorStatsState("Hello", LocalDateTime.now.toString)
+  override def initialState: LagomSensorState = LagomSensorState.empty
 
-  /**
-    * An entity can define different behaviours for different states, so the behaviour
-    * is a function of the current state to a set of actions.
-    */
   override def behavior: Behavior = {
-    case LagomSensorStatsState(message, _) => Actions().onCommand[UseGreetingMessage, Done] {
+    case LagomSensorState.empty => emptyBehavior
+    case _ => liveBehavior
+  }
 
-      // Command handler for the UseGreetingMessage command
-      case (UseGreetingMessage(newMessage), ctx, state) =>
-        // In response to this command, we want to first persist it as a
-        // GreetingMessageChanged event
+  private def emptyBehavior =
+    Actions().onCommand[CreateSensor.type,Done]{
+      case (CreateSensor, ctx, state) =>
         ctx.thenPersist(
-          GreetingMessageChanged(newMessage)
+          SensorCreated(initialState.timestamp)
         ) { _ =>
-          // Then once the event is successfully persisted, we respond with done.
           ctx.reply(Done)
         }
-
-    }.onReadOnlyCommand[Hello, String] {
-
-      // Command handler for the Hello command
-      case (Hello(name), ctx, state) =>
-        // Reply with a message built from the current message, and the name of
-        // the person we're meant to say hello to.
-        ctx.reply(s"$message, $name!")
-
     }.onEvent {
-
-      // Event handler for the GreetingMessageChanged event
-      case (GreetingMessageChanged(newMessage), state) =>
-        // We simply update the current state to use the greeting message from
-        // the event.
-        LagomSensorStatsState(newMessage, LocalDateTime.now().toString)
-
+      case (SensorCreated(createTime), state) =>
+        state.copy(timestamp = createTime)
     }
-  }
+
+  private def liveBehavior =
+    Actions().onCommand[UpdateSensor,Done]{
+      case (UpdateSensor(data), ctx, state) =>
+        ctx.thenPersist(
+          SensorUpdated(data)
+        ){ _ =>
+          ctx.reply(Done)
+        }
+    }.onReadOnlyCommand[Get.type,LagomSensorState]{
+      case (Get,ctx, state) =>
+        ctx.reply(state)
+    }.onEvent {
+      case (SensorUpdated(data), state) =>
+        state.copy(data = data, timestamp = LocalDateTime.now.toString)
+    }
 }
 
 /**
   * The current state held by the persistent entity.
   */
-case class LagomSensorStatsState(message: String, timestamp: String)
+case class LagomSensorState(data: String, timestamp: String)
 
-object LagomSensorStatsState {
+object LagomSensorState {
   /**
-    * Format for the hello state.
+    * Format for the Lagom Sensor state.
     *
     * Persisted entities get snapshotted every configured number of events. This
     * means the state gets stored to the database, so that when the entity gets
@@ -93,84 +93,12 @@ object LagomSensorStatsState {
     * snapshot. Hence, a JSON format needs to be declared so that it can be
     * serialized and deserialized when storing to and from the database.
     */
-  implicit val format: Format[LagomSensorStatsState] = Json.format
+  implicit val format: Format[LagomSensorState] = Json.format
+
+  val empty = LagomSensorState("","")
 }
 
-/**
-  * This interface defines all the events that the LagomSensorStatsEntity supports.
-  */
-sealed trait LagomSensorStatsEvent extends AggregateEvent[LagomSensorStatsEvent] {
-  def aggregateTag: AggregateEventTag[LagomSensorStatsEvent] = LagomSensorStatsEvent.Tag
-}
 
-object LagomSensorStatsEvent {
-  val Tag: AggregateEventTag[LagomSensorStatsEvent] = AggregateEventTag[LagomSensorStatsEvent]
-}
-
-/**
-  * An event that represents a change in greeting message.
-  */
-case class GreetingMessageChanged(message: String) extends LagomSensorStatsEvent
-
-object GreetingMessageChanged {
-
-  /**
-    * Format for the greeting message changed event.
-    *
-    * Events get stored and loaded from the database, hence a JSON format
-    * needs to be declared so that they can be serialized and deserialized.
-    */
-  implicit val format: Format[GreetingMessageChanged] = Json.format
-}
-
-/**
-  * This interface defines all the commands that the LagomSensorStatsEntity supports.
-  */
-sealed trait LagomSensorStatsCommand[R] extends ReplyType[R]
-
-/**
-  * A command to switch the greeting message.
-  *
-  * It has a reply type of [[Done]], which is sent back to the caller
-  * when all the events emitted by this command are successfully persisted.
-  */
-case class UseGreetingMessage(message: String) extends LagomSensorStatsCommand[Done]
-
-object UseGreetingMessage {
-
-  /**
-    * Format for the use greeting message command.
-    *
-    * Persistent entities get sharded across the cluster. This means commands
-    * may be sent over the network to the node where the entity lives if the
-    * entity is not on the same node that the command was issued from. To do
-    * that, a JSON format needs to be declared so the command can be serialized
-    * and deserialized.
-    */
-  implicit val format: Format[UseGreetingMessage] = Json.format
-}
-
-/**
-  * A command to say hello to someone using the current greeting message.
-  *
-  * The reply type is String, and will contain the message to say to that
-  * person.
-  */
-case class Hello(name: String) extends LagomSensorStatsCommand[String]
-
-object Hello {
-
-  /**
-    * Format for the hello command.
-    *
-    * Persistent entities get sharded across the cluster. This means commands
-    * may be sent over the network to the node where the entity lives if the
-    * entity is not on the same node that the command was issued from. To do
-    * that, a JSON format needs to be declared so the command can be serialized
-    * and deserialized.
-    */
-  implicit val format: Format[Hello] = Json.format
-}
 
 /**
   * Akka serialization, used by both persistence and remoting, needs to have
@@ -183,9 +111,10 @@ object Hello {
   */
 object LagomSensorStatsSerializerRegistry extends JsonSerializerRegistry {
   override def serializers: Seq[JsonSerializer[_]] = Seq(
-    JsonSerializer[UseGreetingMessage],
-    JsonSerializer[Hello],
-    JsonSerializer[GreetingMessageChanged],
-    JsonSerializer[LagomSensorStatsState]
+    JsonSerializer[LagomSensorState],
+    JsonSerializer[UpdateSensor],
+    JsonSerializer[CreateSensor.type],
+    JsonSerializer[SensorUpdated],
+    JsonSerializer[SensorCreated]
   )
 }
