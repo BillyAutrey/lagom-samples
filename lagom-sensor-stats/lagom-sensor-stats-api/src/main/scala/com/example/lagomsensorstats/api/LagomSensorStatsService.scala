@@ -1,6 +1,6 @@
 package com.example.lagomsensorstats.api
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.api.broker.kafka.{KafkaProperties, PartitionKeyStrategy}
 import com.lightbend.lagom.scaladsl.api.{Descriptor, Service, ServiceCall}
@@ -38,7 +38,7 @@ trait LagomSensorStatsService extends Service {
   /**
     * This gets published to Kafka.
     */
-  def sensorDataTopic(): Topic[SensorData]
+  def sensorDataTopic(): Topic[SensorUpdated]
 
   override final def descriptor: Descriptor = {
     import Service._
@@ -92,4 +92,10 @@ object SensorData {
     * This will be picked up by a Lagom implicit conversion from Play's JSON format to Lagom's message serializer.
     */
   implicit val format: Format[SensorData] = Json.format[SensorData]
+}
+
+case class SensorUpdated(id: String, data: String, timestamp: String)
+
+object SensorUpdated {
+  implicit val format: Format[SensorUpdated] = Json.format[SensorUpdated]
 }

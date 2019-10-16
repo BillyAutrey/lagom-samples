@@ -1,44 +1,50 @@
 package com.example.lagomsensorstats.impl
 
+import akka.{Done, NotUsed}
 import com.example.lagomsensorstats.api
-import com.example.lagomsensorstats.api.LagomSensorStatsService
+import com.example.lagomsensorstats.api.{LagomSensorStatsService, Sensor, SensorData}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
 import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 
+import scala.concurrent.ExecutionContext
+
 /**
   * Implementation of the LagomSensorStatsService.
   */
-class LagomSensorStatsServiceImpl(persistentEntityRegistry: PersistentEntityRegistry) extends LagomSensorStatsService {
+class LagomSensorStatsServiceImpl(persistentEntityRegistry: PersistentEntityRegistry)(implicit executionContext: ExecutionContext) extends LagomSensorStatsService {
 
-  override def hello(id: String) = ServiceCall { _ =>
-    // Look up the Lagom Sensor Stats entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[LagomSensorStatsEntity](id)
+  def getRef(id: String) = persistentEntityRegistry.refFor(id)
 
-    // Ask the entity the Hello command.
-    ref.ask(Hello(id))
-  }
-
-  override def useGreeting(id: String) = ServiceCall { request =>
-    // Look up the Lagom Sensor Stats entity for the given ID.
-    val ref = persistentEntityRegistry.refFor[LagomSensorStatsEntity](id)
-
-    // Tell the entity to use the greeting message specified.
-    ref.ask(UseGreetingMessage(request.message))
-  }
-
-
-  override def greetingsTopic(): Topic[api.GreetingMessageChanged] =
+  override def sensorDataTopic(): Topic[api.SensorUpdated] =
     TopicProducer.singleStreamWithOffset {
       fromOffset =>
         persistentEntityRegistry.eventStream(LagomSensorStatsEvent.Tag, fromOffset)
           .map(ev => (convertEvent(ev), ev.offset))
     }
 
-  private def convertEvent(helloEvent: EventStreamElement[LagomSensorStatsEvent]): api.GreetingMessageChanged = {
-    helloEvent.event match {
-      case GreetingMessageChanged(msg) => api.GreetingMessageChanged(helloEvent.entityId, msg)
+  private def convertEvent(sensorEvent: EventStreamElement[LagomSensorStatsEvent]): api.SensorUpdated = {
+    sensorEvent.event match {
+      case SensorUpdated(data, timestamp) => api.SensorUpdated(sensorEvent.entityId, data, timestamp)
     }
+  }
+
+  override def createSensor(): ServiceCall[Sensor, NotUsed] = ServiceCall{ sensor =>
+      getRef(sensor.id)
+        .ask(CreateSensor)
+        .map(_ => NotUsed)
+  }
+
+  override def getSensorData(id: String): ServiceCall[NotUsed, SensorData] = ServiceCall{ _ =>
+    getRef(id)
+      .ask(Get)
+      .map( state => SensorData(id,state.data))
+  }
+
+  override def updateSensorData(): ServiceCall[SensorData, NotUsed] = ServiceCall{ data =>
+    getRef(data.id)
+      .ask(UpdateSensor(data.data))
+      .map(_ => NotUsed)
   }
 }

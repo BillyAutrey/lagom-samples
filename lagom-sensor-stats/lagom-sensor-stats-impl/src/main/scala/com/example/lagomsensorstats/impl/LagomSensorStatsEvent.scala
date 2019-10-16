@@ -17,7 +17,7 @@ object LagomSensorStatsEvent {
 /**
   * An event that represents a change in greeting message.
   */
-case class SensorUpdated(data: String) extends LagomSensorStatsEvent
+case class SensorUpdated(data: String, timestamp: String) extends LagomSensorStatsEvent
 
 object SensorUpdated {
 

@@ -65,7 +65,7 @@ class LagomSensorStatsEntity extends PersistentEntity {
     Actions().onCommand[UpdateSensor,Done]{
       case (UpdateSensor(data), ctx, state) =>
         ctx.thenPersist(
-          SensorUpdated(data)
+          SensorUpdated(data, LocalDateTime.now.toString)
         ){ _ =>
           ctx.reply(Done)
         }
@@ -73,8 +73,8 @@ class LagomSensorStatsEntity extends PersistentEntity {
       case (Get,ctx, state) =>
         ctx.reply(state)
     }.onEvent {
-      case (SensorUpdated(data), state) =>
-        state.copy(data = data, timestamp = LocalDateTime.now.toString)
+      case (SensorUpdated(data, timestamp), state) =>
+        state.copy(data = data, timestamp = timestamp)
     }
 }
 
