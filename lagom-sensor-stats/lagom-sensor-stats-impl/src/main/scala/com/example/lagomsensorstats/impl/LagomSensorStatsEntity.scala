@@ -52,10 +52,18 @@ class LagomSensorStatsEntity extends PersistentEntity {
     Actions().onCommand[CreateSensor.type,Done]{
       case (CreateSensor, ctx, state) =>
         ctx.thenPersist(
-          SensorCreated(initialState.timestamp)
+          SensorCreated(LocalDateTime.now.toString)
         ) { _ =>
           ctx.reply(Done)
         }
+    }.onCommand[UpdateSensor,Done]{
+      case (UpdateSensor(_), ctx, _) =>
+        ctx.invalidCommand("Sensor not found, cannot update state")
+        ctx.done
+    }.onCommand[Get.type, LagomSensorState]{
+      case (Get, ctx, _) =>
+        ctx.invalidCommand("Sensor data not found")
+        ctx.done
     }.onEvent {
       case (SensorCreated(createTime), state) =>
         state.copy(timestamp = createTime)
@@ -115,6 +123,7 @@ object LagomSensorStatsSerializerRegistry extends JsonSerializerRegistry {
     JsonSerializer[UpdateSensor],
     JsonSerializer[CreateSensor.type],
     JsonSerializer[SensorUpdated],
-    JsonSerializer[SensorCreated]
+    JsonSerializer[SensorCreated],
+    JsonSerializer[Get.type]
   )
 }

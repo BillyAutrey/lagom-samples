@@ -1,6 +1,6 @@
 package com.example.lagomsensorstats.impl
 
-import akka.{Done, NotUsed}
+import akka.NotUsed
 import com.example.lagomsensorstats.api
 import com.example.lagomsensorstats.api.{LagomSensorStatsService, Sensor, SensorData}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
@@ -15,7 +15,7 @@ import scala.concurrent.ExecutionContext
   */
 class LagomSensorStatsServiceImpl(persistentEntityRegistry: PersistentEntityRegistry)(implicit executionContext: ExecutionContext) extends LagomSensorStatsService {
 
-  def getRef(id: String) = persistentEntityRegistry.refFor(id)
+  def getRef(id: String) = persistentEntityRegistry.refFor[LagomSensorStatsEntity](id)
 
   override def sensorDataTopic(): Topic[api.SensorUpdated] =
     TopicProducer.singleStreamWithOffset {

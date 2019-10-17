@@ -57,7 +57,7 @@ trait LagomSensorStatsService extends Service {
           // sensor id as the partition key.
           .addProperty(
             KafkaProperties.partitionKeyStrategy,
-            PartitionKeyStrategy[SensorData](_.id)
+            PartitionKeyStrategy[SensorUpdated](_.id)
           )
       )
       .withAutoAcl(true)

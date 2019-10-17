@@ -14,19 +14,9 @@ object LagomSensorStatsEvent {
   val Tag: AggregateEventTag[LagomSensorStatsEvent] = AggregateEventTag[LagomSensorStatsEvent]
 }
 
-/**
-  * An event that represents a change in greeting message.
-  */
 case class SensorUpdated(data: String, timestamp: String) extends LagomSensorStatsEvent
 
 object SensorUpdated {
-
-  /**
-    * Format for the sensor updated event.
-    *
-    * Events get stored and loaded from the database, hence a JSON format
-    * needs to be declared so that they can be serialized and deserialized.
-    */
   implicit val format: Format[SensorUpdated] = Json.format
 }
 
