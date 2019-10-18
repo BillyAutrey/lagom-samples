@@ -3,10 +3,14 @@ package com.example.lagomsensorstats.impl
 import java.util.UUID
 
 import akka.NotUsed
+import akka.actor.ActorSystem
+import akka.stream.Materializer
+import akka.stream.testkit.scaladsl.TestSink
 import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.ServiceTest
+import com.lightbend.lagom.scaladsl.testkit.{ServiceTest, TestTopicComponents}
 import org.scalatest.{AsyncWordSpec, BeforeAndAfterAll, Matchers}
 import com.example.lagomsensorstats.api._
+import com.example.lagomsensorstats.api
 
 class LagomSensorStatsServiceSpec extends AsyncWordSpec with Matchers with BeforeAndAfterAll {
 
@@ -14,10 +18,20 @@ class LagomSensorStatsServiceSpec extends AsyncWordSpec with Matchers with Befor
     ServiceTest.defaultSetup
       .withCassandra()
   ) { ctx =>
-    new LagomSensorStatsApplication(ctx) with LocalServiceLocator
+    new LagomSensorStatsApplication(ctx)
+      with LocalServiceLocator
+      with TestTopicComponents
   }
 
-  def generateId: String = UUID.randomUUID.toString
+  implicit val system: ActorSystem = server.actorSystem
+  implicit val mat: Materializer   = server.materializer
+
+  def generateId: String   = UUID.randomUUID.toString
+  def generateData: String = (Math.random * 100).toString
+
+  def createSensor(id: String) = {
+    client.createSensor().invoke(Sensor(id))
+  }
 
   val client: LagomSensorStatsService = server.serviceClient.implement[LagomSensorStatsService]
 
@@ -27,17 +41,17 @@ class LagomSensorStatsServiceSpec extends AsyncWordSpec with Matchers with Befor
 
     "create a sensor" in {
       val id = generateId
-      client.createSensor().invoke(Sensor(id)).map{ response =>
+      createSensor(id).map{ response =>
         response shouldBe a [NotUsed]
       }
     }
 
     "update and retrieve a sensor" in {
       val id = generateId
-      val data = Math.random * 100
+      val data = generateData
 
       for {
-        create <- client.createSensor().invoke(Sensor(id))
+        create <- createSensor(id)
         update <- client.updateSensorData().invoke(SensorData(id,data.toString))
         get <- client.getSensorData(id).invoke()
       } yield {

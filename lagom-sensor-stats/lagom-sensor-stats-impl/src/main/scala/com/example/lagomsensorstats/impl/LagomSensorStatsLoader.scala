@@ -14,12 +14,12 @@ import com.softwaremill.macwire._
 class LagomSensorStatsLoader extends LagomApplicationLoader {
 
   override def load(context: LagomApplicationContext): LagomApplication =
-    new LagomSensorStatsApplication(context) {
+    new LagomSensorStatsApplication(context) with LagomKafkaComponents{
       override def serviceLocator: ServiceLocator = NoServiceLocator
     }
 
   override def loadDevMode(context: LagomApplicationContext): LagomApplication =
-    new LagomSensorStatsApplication(context) with LagomDevModeComponents
+    new LagomSensorStatsApplication(context) with LagomDevModeComponents with LagomKafkaComponents
 
   override def describeService = Some(readDescriptor[LagomSensorStatsService])
 }
@@ -27,7 +27,6 @@ class LagomSensorStatsLoader extends LagomApplicationLoader {
 abstract class LagomSensorStatsApplication(context: LagomApplicationContext)
   extends LagomApplication(context)
     with CassandraPersistenceComponents
-    with LagomKafkaComponents
     with AhcWSComponents {
 
   // Bind the service that this server provides

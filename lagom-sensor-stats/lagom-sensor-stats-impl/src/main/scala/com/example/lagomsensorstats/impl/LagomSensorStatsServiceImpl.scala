@@ -8,6 +8,7 @@ import com.lightbend.lagom.scaladsl.api.broker.Topic
 import com.lightbend.lagom.scaladsl.broker.TopicProducer
 import com.lightbend.lagom.scaladsl.persistence.{EventStreamElement, PersistentEntityRegistry}
 
+import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 
 /**
@@ -20,13 +21,22 @@ class LagomSensorStatsServiceImpl(persistentEntityRegistry: PersistentEntityRegi
   override def sensorDataTopic(): Topic[api.SensorUpdated] =
     TopicProducer.singleStreamWithOffset {
       fromOffset =>
-        persistentEntityRegistry.eventStream(LagomSensorStatsEvent.Tag, fromOffset)
-          .map(ev => (convertEvent(ev), ev.offset))
+        persistentEntityRegistry
+          .eventStream(LagomSensorStatsEvent.Tag, fromOffset)
+          .mapConcat(filterSensorData)
     }
 
   private def convertEvent(sensorEvent: EventStreamElement[LagomSensorStatsEvent]): api.SensorUpdated = {
     sensorEvent.event match {
       case SensorUpdated(data, timestamp) => api.SensorUpdated(sensorEvent.entityId, data, timestamp)
+    }
+  }
+
+  private def filterSensorData(sensorEvent: EventStreamElement[LagomSensorStatsEvent]) = {
+    sensorEvent match {
+      case event @ EventStreamElement(_,SensorUpdated(_,_), offset) =>
+        immutable.Seq((convertEvent(event), offset))
+      case _ => Nil
     }
   }
 
