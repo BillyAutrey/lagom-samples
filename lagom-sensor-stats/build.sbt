@@ -9,7 +9,7 @@ scalaVersion in ThisBuild := "2.12.8"
 
 
 lazy val `lagom-sensor-stats` = (project in file("."))
-  .aggregate(`lagom-sensor-stats-api`, `lagom-sensor-stats-impl`, `lagom-sensor-stats-stream-api`, `lagom-sensor-stats-stream-impl`)
+  .aggregate(`lagom-sensor-stats-api`, `lagom-sensor-stats-impl`, `sensor-websocket-gateway`)
 
 lazy val `lagom-sensor-stats-api` = (project in file("lagom-sensor-stats-api"))
   .settings(
@@ -26,20 +26,11 @@ lazy val `lagom-sensor-stats-impl` = (project in file("lagom-sensor-stats-impl")
   .settings(lagomForkedTestSettings)
   .dependsOn(`lagom-sensor-stats-api`)
 
-lazy val `lagom-sensor-stats-stream-api` = (project in file("lagom-sensor-stats-stream-api"))
-  .settings(
-    libraryDependencies ++= Seq(
-      lagomScaladslApi
-    )
-  )
-
-lazy val `lagom-sensor-stats-stream-impl` = (project in file("lagom-sensor-stats-stream-impl"))
+lazy val `sensor-websocket-gateway` = (project in file("sensor-websocket-gateway"))
   .enablePlugins(LagomScala)
   .settings(
-    libraryDependencies ++= Seq(
-      lagomScaladslTestKit,
-      macwire,
-      scalaTest
-    )
+    libraryDependencies ++= akkaHttpGatewayDeps
+    ++ cinnamonPrometheusDeps
+    ++ cinnamonAkkaHttpDeps
   )
-  .dependsOn(`lagom-sensor-stats-stream-api`, `lagom-sensor-stats-api`)
+  .dependsOn(`lagom-sensor-stats-api`)
