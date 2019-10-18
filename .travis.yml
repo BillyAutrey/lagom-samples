@@ -1,0 +1,10 @@
+sudo: false
+language: scala
+
+scala:
+  - "2.12.8"
+
+env:
+  matrix:
+    - CMD="cd lagom-client-restaurant && sbt test"
+    - CMD="cd lagom-sensor-stats && sbt test"
