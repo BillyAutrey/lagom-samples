@@ -52,13 +52,16 @@ object Dependencies {
   val akkaHttpGatewayDeps = Seq(
     lagomScaladslClient,
     lagomScaladslAkkaDiscovery,
+    lagomScaladslKafkaClient,
+    lagomLogback,
     akkaSlf4j,
     akkaHttp,
     akkaMgmt,
     sprayJson,
     scalaTest,
     akkaStreamsTestkit,
-    akkaHttpTestkit
+    akkaHttpTestkit,
+    lagomScaladslTestKit
   )
 
   val cinnamonPrometheusDeps = Seq(
