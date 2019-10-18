@@ -1,23 +1,16 @@
 package com.example.gateway
 
 import akka.NotUsed
-import akka.http.scaladsl.model.ws.BinaryMessage
 import akka.http.scaladsl.testkit.{ScalatestRouteTest, WSProbe}
-import akka.stream.scaladsl.{Sink, Source}
-import akka.stream.testkit.scaladsl.TestSink
-import akka.testkit.TestProbe
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import com.example.lagomsensorstats.api.{LagomSensorStatsService, Sensor, SensorData, SensorUpdated}
 import com.lightbend.lagom.scaladsl.api.ServiceCall
-import com.lightbend.lagom.scaladsl.api.broker.{Subscriber, Topic}
-import com.lightbend.lagom.scaladsl.server.LocalServiceLocator
-import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory, ServiceTest}
+import com.lightbend.lagom.scaladsl.api.broker.Topic
+import com.lightbend.lagom.scaladsl.testkit.{ProducerStub, ProducerStubFactory}
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import org.scalatest.concurrent.Eventually
-import org.scalatest.{FlatSpec, FunSuite, Matchers, WordSpec}
-import play.api.libs.json.Json
+import org.scalatest.{Matchers, WordSpec}
 
-class SensorStatsRoutesSpec extends WordSpec with Matchers with MockitoSugar with ArgumentMatchersSugar with ScalatestRouteTest with Eventually{
+class SensorStatsRoutesSpec extends WordSpec with Matchers with MockitoSugar with ArgumentMatchersSugar with ScalatestRouteTest with Eventually {
 
   //stubs for the Lagom service, to allow us to replicate topic behavior
   private val stubFactory = new ProducerStubFactory(system, materializer)
@@ -33,14 +26,19 @@ class SensorStatsRoutesSpec extends WordSpec with Matchers with MockitoSugar wit
   "SensorStatsRoutes" should {
     "return a websocket" in {
       //Send a bunch of SensorUpdated messages
-      (1 to 10)
-        .map( num => SensorUpdated("1", num.toString, num.toString))
-        .foreach(producerStub.send)
+      val messages = (1 to 10)
+        .map(num => SensorUpdated("1", num.toString, num.toString))
+      
+      messages.foreach(producerStub.send)
 
-      WS("/greeter", wsClient.flow) ~> fixture.websocketRoute ~> check {
+      WS("/sensor_data", wsClient.flow) ~> fixture.websocketRoute ~> check {
         isWebSocketUpgrade shouldEqual true
 
-        wsClient.expectMessage(SensorUpdated("1","1","1").toString)
+        (1 to 10)
+          .foreach(num =>
+            wsClient.expectMessage(SensorUpdated("1", num.toString, num.toString).toString)
+          )
+
       }
     }
   }
