@@ -6,31 +6,30 @@ import sbt._
 object Dependencies {
 
   //akka
-  lazy val akkaVersion = "2.5.22"
+  lazy val akkaVersion = "2.6.1"
 
   lazy val akkaSlf4j = "com.typesafe.akka" %% "akka-slf4j" % akkaVersion
-  lazy val akkaServiceDiscovery = "com.typesafe.akka" %% "akka-discovery" % akkaVersion
 
   //akka http
-  lazy val akkaHttpVersion = "10.1.7"
+  lazy val akkaHttpVersion = "10.1.11"
   lazy val akkaHttp = "com.typesafe.akka" %% "akka-http"   % akkaHttpVersion
   lazy val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion
 
   //akka mgmt
-  lazy val akkaMgmtVersion = "1.0.1"
+  lazy val akkaMgmtVersion = "1.0.5"
 
   lazy val akkaMgmt = "com.lightbend.akka.management" %% "akka-management" % akkaMgmtVersion
   lazy val akkaClusterBootstrap = "com.lightbend.akka.management" %% "akka-management-cluster-bootstrap" % akkaMgmtVersion
   lazy val akkaDiscoveryK8s =  "com.lightbend.akka.discovery" %% "akka-discovery-kubernetes-api" % akkaMgmtVersion
 
   //misc
-  lazy val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.0" % "provided"
+  lazy val macwire = "com.softwaremill.macwire" %% "macros" % "2.3.3" % "provided"
 
   //test
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.4" % Test
+  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.1.0" % Test
   lazy val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.14.1" % "test"
-  lazy val akkaStreamsTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % "2.5.23" % Test
-  lazy val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % "10.1.10" % Test
+  lazy val akkaStreamsTestkit = "com.typesafe.akka" %% "akka-stream-testkit" % akkaVersion % Test
+  lazy val akkaHttpTestkit = "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test
   
   lazy val mockito = Seq(
       "org.mockito" %% "mockito-scala" % "1.5.18" % Test,

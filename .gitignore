@@ -12,4 +12,7 @@ bin
 .settings
 logs
 .idea
-.metals
+# metals
+.metals/
+.bloop/
+project/metals.sbt

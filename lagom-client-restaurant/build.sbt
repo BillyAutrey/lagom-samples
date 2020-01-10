@@ -2,7 +2,9 @@ import Dependencies._
 
 organization in ThisBuild := "com.example"
 version in ThisBuild := "1.0-SNAPSHOT"
-scalaVersion in ThisBuild := "2.12.8"
+scalaVersion in ThisBuild := "2.13.1"
+credentials in ThisBuild += Credentials(Path.userHome / ".lightbend" / "commercial.credentials")
+resolvers in ThisBuild += "lightbend-commercial-maven" at "https://repo.lightbend.com/commercial-releases"
 
 lazy val `lagom-client-restaurant` = (project in file("."))
   .aggregate(`menu-item-api`, `menu-item-impl`, /*`order-api`, `order-impl`, `order-stream-api`, `order-stream-impl`,*/ `restaurant-client`)
